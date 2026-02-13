@@ -1,0 +1,8 @@
+# Ignorar .vs
+.vs/
+
+# Ignorar todas las carpetas obj
+**/obj/
+
+# (Muy recomendable en .NET)
+**/bin/

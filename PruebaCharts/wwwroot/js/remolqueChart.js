@@ -5,12 +5,11 @@ let currentMapName = 'RemolqueDynamic';
 
 // Opciones por defecto
 const defaults = {
-    padding: 10,       // margen interno dentro de la caja del remolque
-    maxCols: null,     // si lo dejas en null, se calcula con sqrt(n)
+    padding: 0,        // sin margen interno (las cargas ocupan todo el remolque)
     textColor: '#1b1b1b',
     showLabels: true,  // pintar texto (id/código) dentro de cada caja
     labelKey: 'label', // propiedad a usar como texto dentro de cada caja
-    valueKey: 'value'  // propiedad a usar para el color (0..100)
+    valueKey: 'value'  // propiedad a usar para el tamaño y color
 };
 
 // Pequeño helper para serializar DOM -> string
@@ -18,7 +17,7 @@ function serializeXml(doc) {
     return new XMLSerializer().serializeToString(doc);
 }
 
-// Construye un SVG nuevo (a partir del base) insertando N cajas: Carga1..CargaN
+// Construye un SVG nuevo insertando N cajas horizontales con ancho proporcional a su value
 function buildSvgWithCargoBoxes(items, options) {
     const cfg = { ...defaults, ...options };
     const parser = new DOMParser();
@@ -28,37 +27,43 @@ function buildSvgWithCargoBoxes(items, options) {
     const box = svgDoc.getElementById('RemolqueBox');
     if (!box) return baseSvgText;
 
+    // Usar las dimensiones completas del RemolqueBox
     const x = parseFloat(box.getAttribute('x'));
     const y = parseFloat(box.getAttribute('y'));
     const w = parseFloat(box.getAttribute('width'));
     const h = parseFloat(box.getAttribute('height'));
 
-    const pad = cfg.padding;
-    const innerX = x + pad;
-    const innerY = y + pad;
-    const innerW = w - 2 * pad;
-    const innerH = h - 2 * pad;
-
     const N = items.length;
+    if (N === 0) return baseSvgText;
 
-    // Cálculo de rejilla (cols/rows) automático
-    let cols = cfg.maxCols ?? Math.ceil(Math.sqrt(N));
-    cols = Math.min(cols, N === 0 ? 1 : N);
-    const rows = Math.ceil(N / cols);
+    // Calcular la suma total de values para distribuir proporcionalmente
+    const totalValue = items.reduce((sum, item) =>
+        sum + Math.max(0, Number(item[cfg.valueKey] ?? 0)), 0);
 
-    const cellW = innerW / cols;
-    const cellH = innerH / rows;
+    // Si la suma total es 0, distribuir equitativamente
+    const useEqualWidth = totalValue === 0;
 
-    // Capa contenedora de cargas (opcional, por organización)
+    // Capa contenedora de cargas
     const cargoLayer = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
     cargoLayer.setAttribute('id', 'CargoLayer');
 
-    for (let i = 0; i < N; i++) {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
+    let currentX = x;
 
-        const cx = innerX + col * cellW;
-        const cy = innerY + row * cellH;
+    for (let i = 0; i < N; i++) {
+        const itemValue = Math.max(0, Number(items[i][cfg.valueKey] ?? 0));
+
+        // Calcular ancho proporcional al value
+        let cellW;
+        if (i === N - 1) {
+            // La última carga ocupa todo el espacio restante (evita errores de redondeo)
+            cellW = x + w - currentX;
+        } else {
+            cellW = useEqualWidth
+                ? w / N
+                : (itemValue / totalValue) * w;
+        }
+
+        const cellH = h;
 
         // Grupo por caja con id/name para ECharts
         const g = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -68,11 +73,11 @@ function buildSvgWithCargoBoxes(items, options) {
 
         // Rectángulo de la caja
         const rect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', String(cx + 2));
-        rect.setAttribute('y', String(cy + 2));
-        rect.setAttribute('width', String(cellW - 4));
-        rect.setAttribute('height', String(cellH - 4));
-        rect.setAttribute('rx', '6');
+        rect.setAttribute('x', String(currentX));
+        rect.setAttribute('y', String(y));
+        rect.setAttribute('width', String(cellW));
+        rect.setAttribute('height', String(cellH));
+        rect.setAttribute('rx', '0'); // sin bordes redondeados para mejor ajuste
         rect.setAttribute('fill', '#ffffff');          // color base (lo sobreescribe visualMap)
         rect.setAttribute('stroke', '#666');
         rect.setAttribute('stroke-width', '1');
@@ -80,19 +85,22 @@ function buildSvgWithCargoBoxes(items, options) {
         g.appendChild(rect);
 
         // Texto central (label)
-        if (cfg.showLabels) {
+        if (cfg.showLabels && cellW > 20) { // solo mostrar si hay espacio suficiente
             const label = (items[i][cfg.labelKey] ?? name).toString();
             const text = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('x', String(cx + cellW / 2));
-            text.setAttribute('y', String(cy + cellH / 2 + 5)); // +5 para centrar ópticamente
+            text.setAttribute('x', String(currentX + cellW / 2));
+            text.setAttribute('y', String(y + cellH / 2 + 5));
             text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('font-size', Math.max(12, Math.min(cellW, cellH) / 5).toString());
+            text.setAttribute('font-size', Math.min(14, cellW / 3).toString());
             text.setAttribute('fill', cfg.textColor);
             text.textContent = label;
             g.appendChild(text);
         }
 
         cargoLayer.appendChild(g);
+
+        // Avanzar la posición X para la siguiente caja
+        currentX += cellW;
     }
 
     // Insertamos el cargoLayer después del grupo Remolque (para que quede “encima”)
@@ -125,7 +133,7 @@ export async function initRemolque(divId, options = {}) {
         tooltip: {
             trigger: 'item',
             formatter: (p) =>
-                p.value!=null ? `<b>${p.value}</b>` : ''
+                p.value != null ? `<b>${p.value}</b>` : ''
         },
         visualMap: {
             left: 'center',
@@ -181,7 +189,7 @@ export function updateRemolque(items, options = {}) {
                 blur: { label: { show: false } },
                 data: []
             }]
-        }, { replaceMerge: ['series']});
+        }, { replaceMerge: ['series'] });
         lastBoxCount = N;
     }
 
