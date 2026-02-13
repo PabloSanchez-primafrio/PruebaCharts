@@ -36,8 +36,15 @@ function buildSvgWithCargoBoxes(items, options) {
     const N = items.length;
     if (N === 0) return baseSvgText;
 
+    // Ordenar items de mayor a menor según su value
+    const sortedItems = [...items].sort((a, b) => {
+        const valueA = Number(a[cfg.valueKey] ?? 0);
+        const valueB = Number(b[cfg.valueKey] ?? 0);
+        return valueB - valueA; // Mayor a menor
+    });
+
     // Calcular la suma total de values para distribuir proporcionalmente
-    const totalValue = items.reduce((sum, item) =>
+    const totalValue = sortedItems.reduce((sum, item) =>
         sum + Math.max(0, Number(item[cfg.valueKey] ?? 0)), 0);
 
     // Si la suma total es 0, distribuir equitativamente
@@ -50,7 +57,7 @@ function buildSvgWithCargoBoxes(items, options) {
     let currentX = x;
 
     for (let i = 0; i < N; i++) {
-        const itemValue = Math.max(0, Number(items[i][cfg.valueKey] ?? 0));
+        const itemValue = Math.max(0, Number(sortedItems[i][cfg.valueKey] ?? 0));
 
         // Calcular ancho proporcional al value
         let cellW;
@@ -65,9 +72,11 @@ function buildSvgWithCargoBoxes(items, options) {
 
         const cellH = h;
 
+        // Usar el label real del item como nombre
+        const name = (sortedItems[i][cfg.labelKey] ?? `Carga${i + 1}`).toString();
+
         // Grupo por caja con id/name para ECharts
         const g = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
-        const name = `Carga${i + 1}`;
         g.setAttribute('id', name);
         g.setAttribute('name', name);
 
@@ -86,7 +95,7 @@ function buildSvgWithCargoBoxes(items, options) {
 
         // Texto central (label)
         if (cfg.showLabels && cellW > 20) { // solo mostrar si hay espacio suficiente
-            const label = (items[i][cfg.labelKey] ?? name).toString();
+            const label = (sortedItems[i][cfg.labelKey] ?? name).toString();
             const text = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', String(currentX + cellW / 2));
             text.setAttribute('y', String(y + cellH / 2 + 5));
@@ -198,11 +207,20 @@ export function updateRemolque(items, options = {}) {
     // Si quieres un KPI global del remolque, añade este registro:
     // data.push({ name: 'Remolque', value: calcularKpiGlobal(items) });
 
+    // Ordenar items de mayor a menor (igual que en buildSvgWithCargoBoxes)
+    const valueKey = options.valueKey ?? 'value';
+    const labelKey = options.labelKey ?? 'label';
+    const sortedItems = [...items].sort((a, b) => {
+        const valueA = Number(a[valueKey] ?? 0);
+        const valueB = Number(b[valueKey] ?? 0);
+        return valueB - valueA; // Mayor a menor
+    });
+
     for (let i = 0; i < N; i++) {
-        const name = `Carga${i + 1}`;
+        const name = (sortedItems[i][labelKey] ?? `Carga${i + 1}`).toString();
         data.push({
             name,
-            value: Number(items[i][options.valueKey ?? 'value'] ?? 0)
+            value: Number(sortedItems[i][valueKey] ?? 0)
         });
     }
 
