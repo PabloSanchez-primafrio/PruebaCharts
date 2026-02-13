@@ -1,0 +1,60 @@
+﻿@page "/"
+@inject IJSRuntime JS
+
+<PageTitle>Index</PageTitle>
+
+<h1>PRUEBA REMOLQUE</h1>
+
+<div id="truckMap" style="height:500px;"></div>
+
+@code {
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "/js/remolqueChart.js");
+
+            // 1) Inicializa el remolque (sin cajas)
+            await _module.InvokeVoidAsync("initRemolque", "truckMap");
+
+            // 2) Carga de BD (simulación aquí)
+            var cargas = await ObtenerCargasDesdeBDAsync();
+
+            // 3) Envía los datos para construir y colorear las cajas
+            // Puedes pasar opciones adicionales (p.ej., maxCols: 6)
+            await _module.InvokeVoidAsync("updateRemolque", cargas, new
+            {
+                maxCols = (int?)null, // o 6 si quieres forzar 6 columnas
+                showLabels = true,
+                labelKey = "label",
+                valueKey = "value",
+                padding = 12
+            });
+        }
+    }
+
+    // Simula tu consulta: cada item debe tener al menos { label, value }
+    private Task<List<object>> ObtenerCargasDesdeBDAsync()
+    {
+        // Sustituye por tu acceso real a BD (EF Core o lo que uses)
+        var lista = new List<object>
+        {
+            new { label = "C001", value = 35 },
+            new { label = "C002", value = 55 },
+            new { label = "C003", value = 80 },
+            new { label = "C004", value = 20 },
+            new { label = "C005", value = 65 },
+            new { label = "C006", value = 10 }
+        };
+        return Task.FromResult(lista);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+            await _module.DisposeAsync();
+    }
+}

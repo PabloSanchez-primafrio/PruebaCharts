@@ -1,0 +1,57 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1000 340"
+     preserveAspectRatio="xMidYMid meet">
+
+  <!-- ===========================
+       REMOLQUE (ZONA COLOREABLE)
+       =========================== -->
+  <g id="Remolque" name="Remolque">
+    <!-- Caja lateral del remolque -->
+    <rect id="RemolqueBox" x="80" y="60" width="860" height="170" rx="10"
+          fill="#e6e6e6" stroke="#999" stroke-width="2" />
+  </g>
+
+  <!-- Patas delanteras -->
+  <rect x="350" y="238" width="12" height="55" fill="#777" />
+
+  <!-- Chasis -->
+  <rect x="79.5" y="230" width="861" height="10" fill="#777" />
+
+  <g id="LogoArea" style="pointer-events:none">
+    
+      <rect x="400" y="240" width="220" height="50"
+            fill="white" stroke="#777" stroke-width="1"/>
+  
+      <!-- Aquí puedes poner una imagen logo -->
+      <!-- Cambia /img/logo_primafrio.png por la ruta real -->
+      <image href="/img/Logotipo_Primafrio.webp"
+             x="440" y="248" width="140" height="35"
+             preserveAspectRatio="xMidYMid meet" />
+
+  </g>
+
+  <g style="pointer-events:none">
+    
+      <rect x="840" y="240" width="100" height="50"
+            fill="white" stroke="#777" stroke-width="1"/>
+  </g>
+
+  <!-- =======================
+       RUEDAS (3 EJES)
+       ======================= -->
+  <g style="pointer-events:none">
+    <g transform="translate(660,271)">
+      <circle cx="0" cy="0" r="30" fill="#333" />
+      <circle cx="0" cy="0" r="18" fill="#777" />
+    </g>
+    <g transform="translate(730,271)">
+      <circle cx="0" cy="0" r="30" fill="#333" />
+      <circle cx="0" cy="0" r="18" fill="#777" />
+    </g>
+    <g transform="translate(800,271)">
+      <circle cx="0" cy="0" r="30" fill="#333" />
+      <circle cx="0" cy="0" r="18" fill="#777" />
+    </g>
+  </g>
+
+</svg>
