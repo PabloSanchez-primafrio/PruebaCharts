@@ -110,6 +110,16 @@ export async function initRemolque(divId, options = {}) {
     const el = document.getElementById(divId);
     if (!el || typeof echarts === 'undefined') return;
 
+    // Dispose existing chart if it exists
+    if (chart) {
+        chart.dispose();
+        chart = null;
+    }
+
+    // Reset state variables
+    lastBoxCount = 0;
+    currentMapName = 'RemolqueDynamic';
+
     const res = await fetch('/assets/remolque.svg');
     baseSvgText = await res.text();
 
@@ -148,7 +158,7 @@ export async function initRemolque(divId, options = {}) {
     };
 
     chart.setOption(option);
-    window.addEventListener('resize', () => chart.resize());
+    window.addEventListener('resize', () => chart?.resize());
 }
 
 export function updateRemolque(items, options = {}) {
@@ -198,4 +208,14 @@ export function updateRemolque(items, options = {}) {
     chart.setOption({
         series: [{ data }]
     });
+}
+
+// Add cleanup function
+export function disposeRemolque() {
+    if (chart) {
+        chart.dispose();
+        chart = null;
+    }
+    baseSvgText = null;
+    lastBoxCount = 0;
 }
