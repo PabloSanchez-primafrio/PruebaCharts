@@ -34,7 +34,7 @@ function buildSvgWithCargoBoxes(items, options) {
     const sortedItems = [...items].sort((a, b) => {
         const valueA = Number(a[cfg.valueKey] ?? 0);
         const valueB = Number(b[cfg.valueKey] ?? 0);
-        return valueB - valueA; // Mayor a menor
+        return valueB - valueA;
     });
 
     const totalValue = sortedItems.reduce((sum, item) =>

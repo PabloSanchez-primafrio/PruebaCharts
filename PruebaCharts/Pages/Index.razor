@@ -6,7 +6,7 @@
 <h1>🚛 Gestión de Cargas del Remolque</h1>
 
 <div class="alert alert-info">
-    <strong>Instrucciones:</strong> Haz clic en cualquier carga para seleccionarla/deseleccionarla.
+    <strong>Instrucciones:</strong> Haz clic en cualquier carga para seleccionarla/deseleccionarla. 
     El total se recalcula automáticamente.
 </div>
 
@@ -22,17 +22,13 @@
             _module = await JS.InvokeAsync<IJSObjectReference>(
                 "import", "/js/remolqueChart.js");
 
-            // 1) Inicializa el remolque (sin cajas)
             await _module.InvokeVoidAsync("initRemolque", "truckMap");
 
-            // 2) Carga de BD (simulación aquí)
             var cargas = await ObtenerCargasDesdeBDAsync();
 
-            // 3) Envía los datos para construir y colorear las cajas
-            // Puedes pasar opciones adicionales (p.ej., maxCols: 6)
             await _module.InvokeVoidAsync("updateRemolque", cargas, new
             {
-                maxCols = (int?)null, // o 6 si quieres forzar 6 columnas
+                maxCols = (int?)null,
                 showLabels = true,
                 labelKey = "label",
                 valueKey = "value",
@@ -41,10 +37,8 @@
         }
     }
 
-    // Simula tu consulta: cada item debe tener al menos { label, value }
     private Task<List<object>> ObtenerCargasDesdeBDAsync()
     {
-        // Sustituye por tu acceso real a BD (EF Core o lo que uses)
         var lista = new List<object>
         {
             new { label = "C001", value = 35 },
