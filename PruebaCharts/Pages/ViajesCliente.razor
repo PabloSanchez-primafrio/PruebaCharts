@@ -1,0 +1,200 @@
+﻿@page "/viajes"
+
+@inject ConsultaService ConsultaService
+@inject IJSRuntime JS
+
+<div class="container mt-4">
+    <h2>Viajes</h2>
+
+    @if (isLoading)
+    {
+        <div class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2"><em>Cargando datos...</em></p>
+        </div>
+    }
+    else if (consultaViajes == null || !consultaViajes.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            No se encontraron datos para el cliente @clienteId
+        </div>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="viajesChart" style="width: 100%; height:500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private List<NumViajes>? consultaViajes;
+    private bool isLoading = true;
+    private int clienteId = 212;
+    private bool graficaRenderizada = false;
+    private string? clienteNombre; // Agregar esta variable
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!graficaRenderizada && !isLoading && consultaViajes != null && consultaViajes.Any())
+        {
+            graficaRenderizada = true;
+            // await Task.Delay(200);
+            await RenderGraphic();
+        }
+    }
+
+    private async Task CargarDatos()
+    {
+        isLoading = true;
+        graficaRenderizada = false;
+        StateHasChanged();
+
+        try
+        {
+            consultaViajes = await ConsultaService.GetNumViajes(clienteId);
+
+            // Obtener el nombre del cliente del primer registro
+            if (consultaViajes != null && consultaViajes.Any())
+            {
+                clienteNombre = consultaViajes.First().Nombre;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            consultaViajes = new List<NumViajes>();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RenderGraphic()
+    {
+        if (consultaViajes == null || !consultaViajes.Any())
+            return;
+
+        var datosPorAnioMes = consultaViajes
+            .Where(v => v.FechaTrabajo.HasValue)
+            .GroupBy(v => new
+            {
+                Anio = v.FechaTrabajo!.Value.Year,
+                Mes = v.FechaTrabajo!.Value.Month
+            })
+            .Select(g => new
+            {
+                g.Key.Anio,
+                g.Key.Mes,
+                TotalViajes = g.Sum(v => v.NumeroViajes)
+            })
+            .OrderBy(x => x.Anio)
+            .ThenBy(x => x.Mes)
+            .ToList();
+
+        var anios = datosPorAnioMes.Select(d => d.Anio).Distinct().OrderBy(a => a).ToList();
+
+        var meses = new[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+
+        var series = new List<object>();
+        foreach (var anio in anios)
+        {
+            var datosAnio = new List<int>();
+            for (int mes = 1; mes <= 12; mes++)
+            {
+                var viajes = datosPorAnioMes.FirstOrDefault(d => d.Anio == anio && d.Mes == mes)?.TotalViajes ?? 0;
+                datosAnio.Add(viajes);
+            }
+
+            series.Add(new
+            {
+                name = anio.ToString(),
+                type = "line",
+                stack = "Total",
+                areaStyle = new { },
+                emphasis = new { focus = "series" },
+                data = datosAnio
+            });
+        }
+
+        var options = new
+        {
+            title = new
+            {
+                text = $"Viajes por Mes - {clienteNombre ?? "Cliente " + clienteId}",
+                left = "center"
+            },
+            tooltip = new
+            {
+                trigger = "axis",
+                axisPointer = new
+                {
+                    type = "cross",
+                    label = new { backgroundColor = "#6A7985" }
+                }
+            },
+            legend = new
+            {
+                data = anios.Select(a => a.ToString()).ToArray(),
+                top = "30px"
+            },
+            toolbox = new
+            {
+                feature = new
+                {
+                    saveAsImage = new { title = "Guardar Imagen" }
+                }
+            },
+            grid = new
+            {
+                left = "3%",
+                right = "4%",
+                bottom = "3%",
+                containLabel = true
+            },
+            xAxis = new[]
+            {
+                new
+                {
+                    type = "category",
+                    boundaryGap = false,
+                    data = meses
+                }
+            },
+            yAxis = new[]
+            {
+                new
+                {
+                    type = "value",
+                    name = "Número de Viajes"
+                }
+            },
+            series = series.ToArray()
+        };
+
+        try
+        {
+            await JS.InvokeVoidAsync("renderEChart", "viajesChart", options);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error renderizando gráfico: {ex.Message}");
+        }
+    }
+}

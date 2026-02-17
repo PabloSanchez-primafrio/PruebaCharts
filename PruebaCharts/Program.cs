@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using PruebaCharts.Services;
+using PruebaCharts.Data;
+using PruebaCharts.Models;
 using PruebaCharts.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// Registra ActiveDirectoryService usando su Singleton existente
+builder.Services.AddSingleton(sp => ActiveDirectoryService.Instance);
+
+builder.Services.AddScoped<ConsultaService>();
 
 var app = builder.Build();
 

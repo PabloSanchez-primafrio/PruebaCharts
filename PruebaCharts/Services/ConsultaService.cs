@@ -54,6 +54,17 @@ public class ConsultaService
         return await GenericRepository.GetAsync<ConsultaInfo>(sql, new { Id = id }, token);
     }
 
+    public async Task<List<NumViajes>> GetNumViajes(int id)
+    {
+        const string sql = @"
+            SELECT Cliente, FechaTrabajo, Nombre, Count(*) NumeroViajes
+            FROM GRUPAJES_CABECERA JOIN CLIENTES ON Cliente=CodigoCli
+            WHERE Cliente=@Id
+            GROUP BY Cliente, Nombre, FechaTrabajo";
+
+        return (List<NumViajes>) await GenericRepository.GetAllAsync<NumViajes>(sql, new { Id = id });
+    }
+
     public async Task<DataTable> EjecutarConsultaAsync(
         ConsultaInfo consulta,
         Dictionary<string, object?> parametros,
