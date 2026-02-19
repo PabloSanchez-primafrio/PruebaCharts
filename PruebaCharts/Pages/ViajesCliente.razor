@@ -41,7 +41,7 @@
     private bool isLoading = true;
     private int clienteId = 212;
     private bool graficaRenderizada = false;
-    private string? clienteNombre; // Agregar esta variable
+    private string? clienteNombre;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,7 +53,6 @@
         if (!graficaRenderizada && !isLoading && consultaViajes != null && consultaViajes.Any())
         {
             graficaRenderizada = true;
-            // await Task.Delay(200);
             await RenderGraphic();
         }
     }
@@ -68,10 +67,9 @@
         {
             consultaViajes = await ConsultaService.GetNumViajes(clienteId);
 
-            // Obtener el nombre del cliente del primer registro
             if (consultaViajes != null && consultaViajes.Any())
             {
-                clienteNombre = consultaViajes.First().Nombre;
+                clienteNombre = consultaViajes.First().NombreCliente;
             }
         }
         catch (Exception ex)
@@ -91,40 +89,35 @@
         if (consultaViajes == null || !consultaViajes.Any())
             return;
 
-        var datosPorAnioMes = consultaViajes
-            .Where(v => v.FechaTrabajo.HasValue)
-            .GroupBy(v => new
-            {
-                Anio = v.FechaTrabajo!.Value.Year,
-                Mes = v.FechaTrabajo!.Value.Month
-            })
+        var datosPorAnyoMes = consultaViajes
+            .GroupBy(v => new { v.Anyo, v.Mes })
             .Select(g => new
             {
-                g.Key.Anio,
+                g.Key.Anyo,
                 g.Key.Mes,
                 TotalViajes = g.Sum(v => v.NumeroViajes)
             })
-            .OrderBy(x => x.Anio)
+            .OrderBy(x => x.Anyo)
             .ThenBy(x => x.Mes)
             .ToList();
 
-        var anios = datosPorAnioMes.Select(d => d.Anio).Distinct().OrderBy(a => a).ToList();
+        var anyos = datosPorAnyoMes.Select(d => d.Anyo).Distinct().OrderBy(a => a).ToList();
 
         var meses = new[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
 
         var series = new List<object>();
-        foreach (var anio in anios)
+        foreach (var anyo in anyos)
         {
             var datosAnio = new List<int>();
             for (int mes = 1; mes <= 12; mes++)
             {
-                var viajes = datosPorAnioMes.FirstOrDefault(d => d.Anio == anio && d.Mes == mes)?.TotalViajes ?? 0;
+                var viajes = datosPorAnyoMes.FirstOrDefault(d => d.Anyo == anyo && d.Mes == mes)?.TotalViajes ?? 0;
                 datosAnio.Add(viajes);
             }
 
             series.Add(new
             {
-                name = anio.ToString(),
+                name = anyo.ToString(),
                 type = "line",
                 stack = "Total",
                 areaStyle = new { },
@@ -151,7 +144,7 @@
             },
             legend = new
             {
-                data = anios.Select(a => a.ToString()).ToArray(),
+                data = anyos.Select(a => a.ToString()).ToArray(),
                 top = "30px"
             },
             toolbox = new

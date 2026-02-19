@@ -57,12 +57,36 @@ public class ConsultaService
     public async Task<List<NumViajes>> GetNumViajes(int id)
     {
         const string sql = @"
-            SELECT Cliente, FechaTrabajo, Nombre, Count(*) NumeroViajes
-            FROM GRUPAJES_CABECERA JOIN CLIENTES ON Cliente=CodigoCli
-            WHERE Cliente=@Id
-            GROUP BY Cliente, Nombre, FechaTrabajo";
+            SELECT G.Cliente Cliente, L.Nombre NombreCliente, YEAR(C.FechaTrabajo) Anyo, MONTH(C.FechaTrabajo) Mes, COUNT(DISTINCT NTrayecto1) NumeroViajes
+            FROM GRUPAJES_CABECERA C INNER JOIN GRUPAJES G ON C.FechaTrabajo=G.FechaTrabajo AND C.Departamento = G.Departamento AND C.Agrupacion=G.IdAgrupacionOptimizador AND G.Anulado=0
+            JOIN Clientes L ON G.Cliente=L.Codigocli
+            WHERE G.Cliente=@Id AND C.Anulada=0
+            GROUP BY G.Cliente, L.Nombre, YEAR(C.FechaTrabajo), MONTH(C.FechaTrabajo)
+            ORDER BY Anyo, Mes";
 
         return (List<NumViajes>) await GenericRepository.GetAllAsync<NumViajes>(sql, new { Id = id });
+    }
+
+    public async Task<List<PaletsTotales>> GetNumPalets(int id)
+    {
+        const string sql = @"
+            SELECT G.Cliente Cliente, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, SUM(G.Palets) NumeroPalets
+            FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
+                                        ON C.FechaTrabajo = G.FechaTrabajo
+                                        AND C.Departamento = G.Departamento
+                                        AND C.Agrupacion = G.IdAgrupacionOptimizador
+                                        AND G.Anulado = 0
+            WHERE G.Cliente=@Id AND C.Anulada = 0
+            GROUP BY G.Cliente, G.FechaTrabajo, G.TipoPalets, C.NTrayecto1
+            HAVING SUM(G.Palets) > 0 
+                    AND SUM(G.Palets) <=
+                            CASE
+                                WHEN G.TipoPalets IN ('H', 'E', 'N', 'NE') THEN 33
+                                ELSE 26
+                            END
+            ORDER BY G.FechaTrabajo, C.NTrayecto1";
+
+        return (List<PaletsTotales>)await GenericRepository.GetAllAsync<PaletsTotales>(sql, new { Id = id });
     }
 
     public async Task<DataTable> EjecutarConsultaAsync(
