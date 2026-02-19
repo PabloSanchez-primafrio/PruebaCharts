@@ -67,23 +67,21 @@ public class ConsultaService
         return (List<NumViajes>) await GenericRepository.GetAllAsync<NumViajes>(sql, new { Id = id });
     }
 
-    public async Task<List<PaletsTotales>> GetNumPalets(int id)
+    public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, SUM(G.Palets) NumeroPalets
+            SELECT G.Cliente Cliente, L.Nombre NombreCliente, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, G.Mercancia Mercancia, G.Palets NumeroPalets
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento
                                         AND C.Agrupacion = G.IdAgrupacionOptimizador
                                         AND G.Anulado = 0
-            WHERE G.Cliente=@Id AND C.Anulada = 0
-            GROUP BY G.Cliente, G.FechaTrabajo, G.TipoPalets, C.NTrayecto1
-            HAVING SUM(G.Palets) > 0 
-                    AND SUM(G.Palets) <=
-                            CASE
-                                WHEN G.TipoPalets IN ('H', 'E', 'N', 'NE') THEN 33
-                                ELSE 26
-                            END
+                                        JOIN Clientes L ON G.Cliente = L.Codigocli
+            WHERE G.Cliente=@Id AND C.Anulada = 0 AND G.Palets > 0 AND G.Palets <=
+                                                                            CASE
+                                                                                WHEN G.TipoPalets IN ('H', 'E', 'N', 'NE') THEN 33
+                                                                                ELSE 26
+                                                                            END
             ORDER BY G.FechaTrabajo, C.NTrayecto1";
 
         return (List<PaletsTotales>)await GenericRepository.GetAllAsync<PaletsTotales>(sql, new { Id = id });

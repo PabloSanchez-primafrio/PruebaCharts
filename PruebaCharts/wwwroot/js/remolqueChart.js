@@ -34,6 +34,7 @@ function buildSvgWithCargoBoxes(items, options) {
     const sortedItems = [...items].sort((a, b) => {
         const valueA = Number(a[cfg.valueKey] ?? 0);
         const valueB = Number(b[cfg.valueKey] ?? 0);
+
         return valueB - valueA;
     });
 
@@ -73,7 +74,7 @@ function buildSvgWithCargoBoxes(items, options) {
         rect.setAttribute('width', String(cellW));
         rect.setAttribute('height', String(cellH));
         rect.setAttribute('rx', '0');
-        rect.setAttribute('fill', '#ffffff');
+        rect.setAttribute('fill', name === (options.emptyLabel ?? 'Libre') ? '#e0e0e0' : '#ffffff');
         rect.setAttribute('stroke', '#666');
         rect.setAttribute('stroke-width', '1');
 
@@ -199,9 +200,10 @@ export function updateRemolque(items, options = {}) {
 
     for (let i = 0; i < N; i++) {
         const name = (sortedItems[i][labelKey] ?? `Carga${i + 1}`).toString();
+        const isLibre = name === (options.emptyLabel ?? 'Libre');
         data.push({
             name,
-            value: Number(sortedItems[i][valueKey] ?? 0)
+            value: isLibre ? null : Number(sortedItems[i][valueKey] ?? 0)
         });
     }
 
@@ -210,7 +212,6 @@ export function updateRemolque(items, options = {}) {
     });
 }
 
-// Add cleanup function
 export function disposeRemolque() {
     if (chart) {
         chart.dispose();
