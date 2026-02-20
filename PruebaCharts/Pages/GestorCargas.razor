@@ -47,163 +47,164 @@
                                 </div>
                             </div>
                         </div>
-
-                        @if (!string.IsNullOrEmpty(filtroBusqueda) || filtroFecha != null)
-                        {
-                            var resultados = trayectos
-                            .Where(t =>
-                            (string.IsNullOrEmpty(filtroBusqueda) || t.Key.ToString().Contains(filtroBusqueda)) &&
-                            (filtroFecha == null || t.Value.First().FechaTrabajo.Date == filtroFecha.Value.Date)
-                            ).ToList();
-
-                            @if (!resultados.Any())
+                        <div style="max-height: calc(100vh - 220px); overflow-y: auto;">
+                            @if (!string.IsNullOrEmpty(filtroBusqueda) || filtroFecha != null)
                             {
-                                <div class="alert alert-danger m-2">No se encontraron trayectos.</div>
+                                var resultados = trayectos
+                                .Where(t =>
+                                (string.IsNullOrEmpty(filtroBusqueda) || t.Key.ToString().Contains(filtroBusqueda)) &&
+                                (filtroFecha == null || t.Value.First().FechaTrabajo.Date == filtroFecha.Value.Date)
+                                ).ToList();
+
+                                @if (!resultados.Any())
+                                {
+                                    <div class="alert alert-danger m-2">No se encontraron trayectos.</div>
+                                }
+                                else
+                                {
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th></th>
+                                                <th>ID Trayecto</th>
+                                                <th>Fecha</th>
+                                                <th class="text-end">Palets Totales</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var trayecto in resultados)
+                                            {
+                                                var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
+                                                var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+
+                                                <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                                    style="cursor:pointer"
+                                                    @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                    <td style="width:30px">
+                                                        <span>@(estaExpandido ? "▾" : "▸")</span>
+                                                    </td>
+                                                    <td><strong>@trayecto.Key</strong></td>
+                                                    <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
+                                                    <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                </tr>
+
+                                                @if (estaExpandido)
+                                                {
+                                                    <tr class="table-secondary">
+                                                        <td></td>
+                                                        <td class="fw-semibold">Tipo Palets</td>
+                                                        <td class="fw-semibold">Mercancia</td>
+                                                        <td class="text-end fw-semibold">Palets</td>
+                                                    </tr>
+                                                    @foreach (var carga in trayecto.Value)
+                                                    {
+                                                        <tr class="table-light" style="cursor:pointer"
+                                                            @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                            <td></td>
+                                                            <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
+                                                            <td class="text-muted fst-italic">@carga.Mercancia</td>
+                                                            <td class="text-end text-muted">@carga.NumeroPalets</td>
+                                                        </tr>
+                                                    }
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
                             }
                             else
                             {
                                 <table class="table table-hover mb-0">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th></th>
-                                            <th>ID Trayecto</th>
-                                            <th>Fecha</th>
-                                            <th class="text-end">Palets Totales</th>
-                                        </tr>
-                                    </thead>
                                     <tbody>
-                                        @foreach (var trayecto in resultados)
+                                        @foreach (var anyo in trayectosPorAnyoMes)
                                         {
-                                            var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
-                                            var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+                                            var anyoExpandido = anyosExpandidos.Contains(anyo.Key);
 
-                                            <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                            <tr class="table-secondary fw-bold"
                                                 style="cursor:pointer"
-                                                @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                @onclick="() => ToggleAnyo(anyo.Key)">
                                                 <td style="width:30px">
-                                                    <span>@(estaExpandido ? "▾" : "▸")</span>
+                                                    <span>@(anyoExpandido ? "▾" : "▸")</span>
                                                 </td>
-                                                <td><strong>@trayecto.Key</strong></td>
-                                                <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
-                                                <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                <td colspan="3">📅 @anyo.Key</td>
                                             </tr>
 
-                                            @if (estaExpandido)
+                                            @if (anyoExpandido)
                                             {
-                                                <tr class="table-secondary">
-                                                    <td></td>
-                                                    <td class="fw-semibold">Tipo Palets</td>
-                                                    <td class="fw-semibold">Mercancia</td>
-                                                    <td class="text-end fw-semibold">Palets</td>
-                                                </tr>
-                                                @foreach (var carga in trayecto.Value)
+                                                @foreach (var mes in anyo.Value)
                                                 {
-                                                    <tr class="table-light" style="cursor:pointer"
-                                                        @onclick="() => ToggleTrayecto(trayecto.Key)">
-                                                        <td></td>
-                                                        <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
-                                                        <td class="text-muted fst-italic">@carga.Mercancia</td>
-                                                        <td class="text-end text-muted">@carga.NumeroPalets</td>
+                                                    var mesKey = $"{anyo.Key}-{mes.Key}";
+                                                    var mesExpandido = mesesExpandidos.Contains(mesKey);
+
+                                                    <tr class="table-light fw-semibold"
+                                                        style="cursor:pointer"
+                                                        @onclick="() => ToggleMes(mesKey)">
+                                                        <td class="ps-3" style="width:30px">
+                                                            <span>@(mesExpandido ? "▾" : "▸")</span>
+                                                        </td>
+                                                        <td colspan="3" class="ps-3">
+                                                            🗓️ @NombreMes(mes.Key)
+                                                        </td>
                                                     </tr>
-                                                }
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                            }
-                        }
-                        else
-                        {
-                            <table class="table table-hover mb-0">
-                                <tbody>
-                                    @foreach (var anyo in trayectosPorAnyoMes)
-                                    {
-                                        var anyoExpandido = anyosExpandidos.Contains(anyo.Key);
 
-                                        <tr class="table-secondary fw-bold"
-                                            style="cursor:pointer"
-                                            @onclick="() => ToggleAnyo(anyo.Key)">
-                                            <td style="width:30px">
-                                                <span>@(anyoExpandido ? "▾" : "▸")</span>
-                                            </td>
-                                            <td colspan="3">📅 @anyo.Key</td>
-                                        </tr>
-
-                                        @if (anyoExpandido)
-                                        {
-                                            @foreach (var mes in anyo.Value)
-                                            {
-                                                var mesKey = $"{anyo.Key}-{mes.Key}";
-                                                var mesExpandido = mesesExpandidos.Contains(mesKey);
-
-                                                <tr class="table-light fw-semibold"
-                                                    style="cursor:pointer"
-                                                    @onclick="() => ToggleMes(mesKey)">
-                                                    <td class="ps-3" style="width:30px">
-                                                        <span>@(mesExpandido ? "▾" : "▸")</span>
-                                                    </td>
-                                                    <td colspan="3" class="ps-3">
-                                                        🗓️ @NombreMes(mes.Key)
-                                                    </td>
-                                                </tr>
-
-                                                @if (mesExpandido)
-                                                {
-                                                    <tr class="table-dark">
-                                                        <th></th>
-                                                        <th>ID Trayecto</th>
-                                                        <th>Fecha</th>
-                                                        <th class="text-end">Palets Totales</th>
-                                                    </tr>
-                                                    @foreach (var trayecto in mes.Value)
+                                                    @if (mesExpandido)
                                                     {
-                                                        var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
-                                                        var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
-
-                                                        <tr class="@(estaSeleccionado ? "table-primary" : "")"
-                                                            style="cursor:pointer"
-                                                            @onclick="() => ToggleTrayecto(trayecto.Key)">
-                                                            <td class="ps-4" style="width:30px">
-                                                                <span>@(estaExpandido ? "▾" : "▸")</span>
-                                                            </td>
-                                                            <td><strong>@trayecto.Key</strong></td>
-                                                            <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
-                                                            <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                        <tr class="table-dark">
+                                                            <th></th>
+                                                            <th>ID Trayecto</th>
+                                                            <th>Fecha</th>
+                                                            <th class="text-end">Palets Totales</th>
                                                         </tr>
-
-                                                        @if (estaExpandido)
+                                                        @foreach (var trayecto in mes.Value)
                                                         {
-                                                            <tr class="table-secondary">
-                                                                <td></td>
-                                                                <td class="fw-semibold">Tipo Palets</td>
-                                                                <td class="fw-semibold">Mercancia</td>
-                                                                <td class="text-end fw-semibold">Palets</td>
+                                                            var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
+                                                            var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+
+                                                            <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                                                style="cursor:pointer"
+                                                                @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                                <td class="ps-4" style="width:30px">
+                                                                    <span>@(estaExpandido ? "▾" : "▸")</span>
+                                                                </td>
+                                                                <td><strong>@trayecto.Key</strong></td>
+                                                                <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
+                                                                <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
                                                             </tr>
-                                                            @foreach (var carga in trayecto.Value)
+
+                                                            @if (estaExpandido)
                                                             {
-                                                                <tr class="table-light" style="cursor:pointer"
-                                                                    @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                                <tr class="table-secondary">
                                                                     <td></td>
-                                                                    <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
-                                                                    <td class="text-muted fst-italic">@carga.Mercancia</td>
-                                                                    <td class="text-end text-muted">@carga.NumeroPalets</td>
+                                                                    <td class="fw-semibold">Tipo Palets</td>
+                                                                    <td class="fw-semibold">Mercancia</td>
+                                                                    <td class="text-end fw-semibold">Palets</td>
                                                                 </tr>
+                                                                @foreach (var carga in trayecto.Value)
+                                                                {
+                                                                    <tr class="table-light" style="cursor:pointer"
+                                                                        @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                                        <td></td>
+                                                                        <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
+                                                                        <td class="text-muted fst-italic">@carga.Mercancia</td>
+                                                                        <td class="text-end text-muted">@carga.NumeroPalets</td>
+                                                                    </tr>
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                </tbody>
-                            </table>
-                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
                     }
                 </div>
             </div>
         </div>
 
-        <div class="col-md-7">
+        <div class="col-md-7" style="overflow-y: visible;">
             @if (trayectoSeleccionado != null)
             {
                 var cargas = trayectos[trayectoSeleccionado.Value];
@@ -215,14 +216,50 @@
                             - @cargas.Sum(p => p.NumeroPalets) palets totales
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div id="truckMap" style="height:300px; width:900px;"></div>
+                    <div class="card-body p-0 align-content-center" >
+                        <div id="truckMap" style="height:300px"></div>
                     </div>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">📊 Resumen del trayecto</h6>
+                    </div>
+                    <div class="card-body">
+                        @{
+                            var tiposEuropalet = new[] { "H", "E", "N", "NE" };
+                            double ocupado = cargas.Sum(c =>
+                                tiposEuropalet.Contains(c.TipoPalets)
+                                    ? (double)c.NumeroPalets / 33
+                                    : (double)c.NumeroPalets / 26
+                            );
+                            double libre = Math.Max(0, 1 - ocupado);
+                        }
+                        <div class="row text-center">
+                            <div class="col">
+                                <div class="fw-semibold text-muted small">Palets totales</div>
+                                <div class="fs-5 fw-bold">@cargas.Sum(c=>c.NumeroPalets)</div>
+                            </div>
+                            <div class="col">
+                                <div class="fw-semibold text-muted small">Ocupación</div>
+                                <div class="fs-5 fw-bold text-primary">@Math.Round(ocupado * 100, 1)%</div>
+                            </div>
+                            <div class="col">
+                                <div class="fw-semibold text-muted small">Espacio libre</div>
+                                <div class="fs-5 fw-bold txt-success">@Math.Round(libre *100, 1)%</div>
+                            </div>
+                            <div class="col">
+                                <div class="fw-semibold text-muted small">Nº de cargas</div>
+                                <div class="fs-5 fw-bold txt-success">@cargas.Count</div>
+                            </div>
+                        </div>
+                        <div id="europaMap" style="height: 350px; width:100%;"></div>
+                    </div>
+                </div>
+
             }
             else
             {
-                <div class="alert alert-info mt-2">
+                <div class="alert alert-info mt-0">
                     Selecciona un trayecto para ver la distribución de carga.
                 </div>
             }
@@ -234,6 +271,7 @@
 
 @code {
     private IJSObjectReference? _module;
+    private IJSObjectReference? _mapaModule;
     private bool _disposed;
     private bool isLoading = true;
     private int clienteId = 212;
@@ -358,9 +396,10 @@
 
         double espacioLibre = Math.Max(0, 1 - espacioOcupado);
 
-        var datos = cargas.Select(c => new
+        var datos = cargas.Select((c, i) => new
         {
-            label = c.TipoPalets,
+            label = $"{c.TipoPalets}_{i+1}",
+            displayLabel = $"{c.TipoPalets} ({c.NumeroPalets})",
             value = Math.Round(
                 tiposEuropalet.Contains(c.TipoPalets)
                     ? (double) c.NumeroPalets / 33 * 100
@@ -373,7 +412,7 @@
             datos.Add(new
             {
                 label = "Libre",
-                valueKey = "Espacio libre",
+                displayLabel = "Libre",
                 value = Math.Round(espacioLibre * 100, 1)
             });
         }
@@ -388,10 +427,18 @@
             {
                 showLabels = true,
                 labelKey = "label",
+                displayLabel = "displayLabel",
                 valueKey = "value",
-                padding = 12,
-                emptyLabel = "Libre"
+                padding = 12
             });
+
+            var paisesCarga = cargas.Select(c => c.PaisCarga ?? "").Where(p => p != "").Distinct().ToList();
+            var paisesDescarga = cargas.Select(c => c.PaisDescarga ?? "").Where(p => p != "").Distinct().ToList();
+
+            _mapaModule ??= await JS.InvokeAsync<IJSObjectReference>(
+                "import", "/js/europaMap.js");
+
+            await _mapaModule.InvokeVoidAsync("initEuropaMap", "europaMap", paisesCarga, paisesDescarga);
         }
         catch (JSDisconnectedException) { }
         catch (Exception ex)
@@ -415,5 +462,10 @@
             }
             catch { }
         }
+
+        if (_mapaModule is not null)
+        {
+            try { await _mapaModule.DisposeAsync(); } catch { }
+    }
     }
 }

@@ -70,13 +70,17 @@ public class ConsultaService
     public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, L.Nombre NombreCliente, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, G.Mercancia Mercancia, G.Palets NumeroPalets
+            SELECT G.Cliente Cliente, L.Nombre NombreCliente, P.Pais PaisCarga, PD.Pais PaisDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, G.Mercancia Mercancia, G.Palets NumeroPalets
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento
                                         AND C.Agrupacion = G.IdAgrupacionOptimizador
                                         AND G.Anulado = 0
                                         JOIN Clientes L ON G.Cliente = L.Codigocli
+                                        JOIN Lugar U ON G.LugarCarga = U.Codigo
+                                        JOIN Pais P ON U.Pais = P.Codigo_pais
+                                        JOIN Lugar UD ON G.LugarDescarga = UD.Codigo
+                                        JOIN Pais PD ON UD.Pais = PD.Codigo_pais
             WHERE G.Cliente=@Id AND C.Anulada = 0 AND G.Palets > 0 AND G.Palets <=
                                                                             CASE
                                                                                 WHEN G.TipoPalets IN ('H', 'E', 'N', 'NE') THEN 33

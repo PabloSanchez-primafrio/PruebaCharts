@@ -31,10 +31,16 @@ function buildSvgWithCargoBoxes(items, options) {
     const N = items.length;
     if (N === 0) return baseSvgText;
 
+    const emptyLabel = cfg.emptyLabel ?? 'Libre';
     const sortedItems = [...items].sort((a, b) => {
+        const nameA = (a[cfg.labelKey] ?? '').toString();
+        const nameB = (b[cfg.labelKey] ?? '').toString();
+
+        if (nameA === emptyLabel) return 1;
+        if (nameB === emptyLabel) return -1;
+
         const valueA = Number(a[cfg.valueKey] ?? 0);
         const valueB = Number(b[cfg.valueKey] ?? 0);
-
         return valueB - valueA;
     });
 
@@ -81,7 +87,8 @@ function buildSvgWithCargoBoxes(items, options) {
         g.appendChild(rect);
 
         if (cfg.showLabels && cellW > 20) {
-            const label = (sortedItems[i][cfg.labelKey] ?? name).toString();
+            const displayKey = cfg.displayLabelKey ?? cfg.labelKey;
+            const label = (sortedItems[i][displayKey] ?? name).toString();
             const text = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', String(currentX + cellW / 2));
             text.setAttribute('y', String(y + cellH / 2 + 5));
@@ -131,16 +138,16 @@ export async function initRemolque(divId, options = {}) {
     const option = {
         tooltip: {
             trigger: 'item',
-            formatter: (p) =>
-                p.value != null ? `<b>${p.value}</b>` : ''
+            formatter: (p) => p.value != null ? `<b>${p.name}</b>: ${p.value}%` : ''
         },
         visualMap: {
             left: 'center',
-            bottom: 10,
+            bottom: 0,
             min: 0,
             max: 100,
             calculable: true,
             orient: 'horizontal',
+            itemHeight: 80,
             inRange: {
                 color: ['#FFE000', '#FFC300', '#06038D']
             }
@@ -150,6 +157,8 @@ export async function initRemolque(divId, options = {}) {
             map: currentMapName,
             roam: false,
             selectedMode: false,
+            top: 0,
+            bottom: 0,
             label: { show: false },
             emphasis: { label: { show: false } },
             select: { label: { show: false } },
@@ -178,6 +187,8 @@ export function updateRemolque(items, options = {}) {
                 map: currentMapName,
                 roam: false,
                 selectedMode: true,
+                top: 0,
+                bottom: 40,
                 label: { show: false },
                 emphasis: { label: { show: false } },
                 select: { label: { show: false } },
@@ -192,7 +203,14 @@ export function updateRemolque(items, options = {}) {
 
     const valueKey = options.valueKey ?? 'value';
     const labelKey = options.labelKey ?? 'label';
+    const emptyLabel = options.emptyLabel ?? 'Libre';
     const sortedItems = [...items].sort((a, b) => {
+        const nameA = (a[labelKey] ?? '').toString();
+        const nameB = (b[labelKey] ?? '').toString();
+
+        if (nameA === emptyLabel) return 1;
+        if (nameB === emptyLabel) return -1;
+
         const valueA = Number(a[valueKey] ?? 0);
         const valueB = Number(b[valueKey] ?? 0);
         return valueB - valueA;
@@ -200,10 +218,22 @@ export function updateRemolque(items, options = {}) {
 
     for (let i = 0; i < N; i++) {
         const name = (sortedItems[i][labelKey] ?? `Carga${i + 1}`).toString();
+        const displayKey = options.displayLabelKey ?? labelKey;
+        const displayName = (sortedItems[i][displayKey] ?? name).toString();
+        const itemValue = Number(sortedItems[i][valueKey] ?? 0);
         const isLibre = name === (options.emptyLabel ?? 'Libre');
         data.push({
             name,
-            value: isLibre ? null : Number(sortedItems[i][valueKey] ?? 0)
+            value: itemValue,
+            ...(isLibre && {
+                itemStyle: {
+                    areaColor: '#e0e0e0',
+                    color: '#e0e0e0'
+                },
+                emphasis: { itemStyle: { areaColor: '#c0c0c0', color: '#c8c8c8' } },
+                select: { itemStyle: { areaColor: '#c0c0c0', color: 'c8c8c8' } }
+            }),
+            tooltip: { formatter: () => `<b>${displayName}</b>: ${itemValue}%` }
         });
     }
 
