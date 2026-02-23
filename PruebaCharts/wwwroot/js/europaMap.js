@@ -14,7 +14,7 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         europaChart = null;
     }
 
-    const res = await fetch('https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson');
+    const res = await fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson');
     const geoJson = await res.json();
 
     echarts.registerMap('Europa', geoJson);
@@ -55,6 +55,7 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         'Ukraine': [31.2, 48.4],
         'Belarus': [27.9, 53.7],
         'Russia': [37.6, 55.8],
+        'Morocco': [-7.1, 31.8]
     };
 
     const nombreAIngles = {
@@ -91,14 +92,15 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         'UCRANIA': 'Ukraine',
         'BIELORRUSIA': 'Belarus',
         'RUSIA': 'Russia',
+        'MARRUECOS': 'Morocco'
     };
 
     const cargaEN = [...new Set(lugaresCarga.map(l => nombreAIngles[l.pais] ?? l.pais))];
     const descargaEN = [...new Set(lugaresDescarga.map(l => nombreAIngles[l.pais] ?? l.pais))];
 
     const regions = [
-        ...cargaEN.map(p => ({ name: p, itemStyle: { areaColor: '#ffcccc' } })),
-        ...descargaEN.map(p => ({ name: p, itemStyle: {areaColor: '#cce0ff' } })),
+        ...cargaEN.map(p => ({ name: p, itemStyle: { areaColor: '#FFFADD' } })),
+        ...descargaEN.map(p => ({ name: p, itemStyle: { areaColor: '#D0D8F0' } })),
     ];
 
     function getCoord(lugar, offset = [0, 0]) {
@@ -115,8 +117,9 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
 
     for (const c of lugaresCarga) {
         for (const d of lugaresDescarga) {
-            const coordC = getCoord(c);
-            const coordD = getCoord(d);
+            const mismoPais = c.pais === d.pais;
+            const coordC = getCoord(c, mismoPais ? [-0.8, 0.5] : [0, 0]);
+            const coordD = getCoord(d, mismoPais ? [0.8, -0.5] : [0, 0]);
             if (coordC && coordD) {
                 lines.push({
                     coords: [coordC, coordD],
@@ -132,10 +135,10 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         const mismoPais = lugaresDescarga.some(d => d.pais === l.pais);
         const coord = getCoord(l, mismoPais ? [-0.8, 0.5] : [0, 0]);
         if (coord) points.push({
-            name: `🔴 Carga: ${l.nombre}`,
+            name: `🔴 Lugar de Carga: ${l.nombre} (${l.pais})`,
             value: [...coord, 1],
             symbolSize: 12,
-            itemStyle: { color: '#FCE300' }
+            itemStyle: { color: '#FFD700' }
         });
     }
 
@@ -143,7 +146,7 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         const mismoPais = lugaresCarga.some(c => c.pais === l.pais);
         const coord = getCoord(l, mismoPais ? [0.8, -0.5] : [0, 0]);
         if (coord) points.push({
-            name: `🔵 Descarga: ${l.nombre}`,
+            name: `🔵 Lugar de Descarga: ${l.nombre} (${l.pais})`,
             value: [...coord, 1],
             symbolSize: 12,
             itemStyle: { color: '#06038D' }
@@ -172,10 +175,10 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         const diffLat = maxLat - minLat;
         const diff = Math.max(diffLng, diffLat);
 
-        if (diff < 2) zoom = 6;
-        else if (diff < 5) zoom = 4;
-        else if (diff < 10) zoom = 2.5;
-        else if (diff < 20) zoom = 1.8;
+        if (diff < 2) zoom = 40;
+        else if (diff < 10) zoom = 30;
+        else if (diff < 15) zoom = 10;
+        else if (diff < 30) zoom = 5;
         else zoom = 1.2;
     }
 
@@ -187,8 +190,8 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         geo: {
             map: 'Europa',
             roam: false,
-            center: [13, 52],
-            zoom: 1.1,
+            center: center,
+            zoom: zoom,
             itemStyle: {
                 areaColor: '#f0f4ff',
                 borderColor: '#aaa',
@@ -207,9 +210,9 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
                 data: lines,
                 effect: {
                     show: true,
-                    speed: 4,
+                    speed: 2,
                     symbol: 'arrow',
-                    symbolSize: 8,
+                    symbolSize: 10,
                     color: '#06038D'
                 },
                 lineStyle: { color: '#06038D', width: 2, opacity: 0.8, curveness: 0.2 }
