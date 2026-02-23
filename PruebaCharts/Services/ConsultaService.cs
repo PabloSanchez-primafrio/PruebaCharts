@@ -70,7 +70,7 @@ public class ConsultaService
     public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, L.Nombre NombreCliente, P.Pais PaisCarga, PD.Pais PaisDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, G.Mercancia Mercancia, G.Palets NumeroPalets
+            SELECT G.Cliente Cliente, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento

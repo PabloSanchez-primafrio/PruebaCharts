@@ -72,7 +72,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach (var trayecto in resultados)
+                                            @foreach (var trayecto in resultados.Where(t => CalcularOcupacion(t.Value) <= 1))
                                             {
                                                 var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
                                                 var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
@@ -155,7 +155,7 @@
                                                             <th>Fecha</th>
                                                             <th class="text-end">Palets Totales</th>
                                                         </tr>
-                                                        @foreach (var trayecto in mes.Value)
+                                                        @foreach (var trayecto in mes.Value.Where(t => CalcularOcupacion(t.Value) <= 1))
                                                         {
                                                             var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
                                                             var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
@@ -379,6 +379,17 @@
         _ => mes.ToString()
     };
 
+    private double CalcularOcupacion (IEnumerable<PaletsTotales> cargas)
+    {
+        var europalet = new HashSet<string> { "H", "E", "N", "NE" };
+
+        return cargas.Sum(c =>
+        {
+            double capacidad = europalet.Contains(c.TipoPalets) ? 33.0 : 26.0;
+            return (double)c.NumeroPalets / capacidad;
+        });
+    }
+
     protected async Task RenderRemolque()
     {
         if (trayectoSeleccionado == null || _disposed)
@@ -432,13 +443,45 @@
                 padding = 12
             });
 
-            var paisesCarga = cargas.Select(c => c.PaisCarga ?? "").Where(p => p != "").Distinct().ToList();
-            var paisesDescarga = cargas.Select(c => c.PaisDescarga ?? "").Where(p => p != "").Distinct().ToList();
+            var lugaresCarga = cargas
+                .Where(c => !string.IsNullOrEmpty(c.PaisCarga))
+                .GroupBy(c => c.NombreLugarCarga)
+                .Select(g =>
+                {
+                    var c = g.First();
+                    bool tieneCoord = c.LatitudLugarCarga != 0 && c.LongitudLugarCarga != 0;
+                    return new
+                    {
+                        nombre = c.NombreLugarCarga ?? c.PaisCarga,
+                        pais = c.PaisCarga!,
+                        lat = tieneCoord ? (double?)c.LatitudLugarCarga : null,
+                        lng = tieneCoord ? (double?)c.LongitudLugarCarga : null
+                    };
+                })
+                .ToList();
+
+
+            var lugaresDescarga = cargas
+                .Where(c => !string.IsNullOrEmpty(c.PaisDescarga))
+                .GroupBy(c => c.NombreLugarDescarga)
+                .Select(g =>
+                {
+                    var c = g.First();
+                    bool tieneCoord = c.LatitudLugarDescarga != 0 && c.LongitudLugarDescarga != 0;
+                    return new
+                    {
+                        nombre = c.NombreLugarDescarga ?? c.PaisDescarga,
+                        pais = c.PaisDescarga!,
+                        lat = tieneCoord ? (double?)c.LatitudLugarDescarga : null,
+                        lng = tieneCoord ? (double?)c.LongitudLugarDescarga : null
+                    };
+                })
+                .ToList();
 
             _mapaModule ??= await JS.InvokeAsync<IJSObjectReference>(
                 "import", "/js/europaMap.js");
 
-            await _mapaModule.InvokeVoidAsync("initEuropaMap", "europaMap", paisesCarga, paisesDescarga);
+            await _mapaModule.InvokeVoidAsync("initEuropaMap", "europaMap", lugaresCarga, lugaresDescarga);
         }
         catch (JSDisconnectedException) { }
         catch (Exception ex)

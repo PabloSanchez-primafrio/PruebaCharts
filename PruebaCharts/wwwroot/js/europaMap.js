@@ -1,6 +1,11 @@
 ﻿let europaChart = null;
 
-export async function initEuropaMap(divId, paisesCarga, paisesDescarga) {
+/**
+ * @param {string} divId
+ * @param {Array<{nombre: string, pais: string, lat: number|null, lng: number|null}>} lugaresCarga
+ * @param {Array<{nombre: string, pais: string, lat: number|null, lng: number|null}>} lugaresDescarga
+ */
+export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
     const el = document.getElementById(divId);
     if (!el || typeof echarts === 'undefined') return;
 
@@ -88,21 +93,34 @@ export async function initEuropaMap(divId, paisesCarga, paisesDescarga) {
         'RUSIA': 'Russia',
     };
 
-    const cargaEN = paisesCarga.map(p => nombreAIngles[p] ?? p);
-    const descargaEN = paisesDescarga.map(p => nombreAIngles[p] ?? p);
+    const cargaEN = [...new Set(lugaresCarga.map(l => nombreAIngles[l.pais] ?? l.pais))];
+    const descargaEN = [...new Set(lugaresDescarga.map(l => nombreAIngles[l.pais] ?? l.pais))];
 
     const regions = [
         ...cargaEN.map(p => ({ name: p, itemStyle: { areaColor: '#ffcccc' } })),
-        ...descargaEN.map(p => ({ name: p, itemStyle: {areaColor: 'cce0ff' } })),
+        ...descargaEN.map(p => ({ name: p, itemStyle: {areaColor: '#cce0ff' } })),
     ];
 
+    function getCoord(lugar, offset = [0, 0]) {
+        if (lugar.lat != null && lugar.lng != null) {
+            return [lugar.lng, lugar.lat];
+        }
+        const en = nombreAIngles[lugar.pais] ?? lugar.pais;
+        const coord = coordenadas[en] ?? null;
+        if (!coord) return null
+        return [coord[0] + offset[0], coord[1] + offset[1]];
+    }
+
     const lines = [];
-    for (const c of cargaEN) {
-        for (const d of descargaEN) {
-            if (c !== d && coordenadas[c] && coordenadas[d]) {
+
+    for (const c of lugaresCarga) {
+        for (const d of lugaresDescarga) {
+            const coordC = getCoord(c);
+            const coordD = getCoord(d);
+            if (coordC && coordD) {
                 lines.push({
-                    coords: [coordenadas[c], coordenadas[d]],
-                    lineStyle: { color: '06038D', width: 2, type: 'dashed' }
+                    coords: [coordC, coordD],
+                    lineStyle: { color: '#06038D', width: 2, type: 'dashed' }
                 });
             }
         }
@@ -110,24 +128,55 @@ export async function initEuropaMap(divId, paisesCarga, paisesDescarga) {
 
     const points = [];
 
-    for (const p of paisesCarga) {
-        const en = nombreAIngles[p] ?? p;
-        if (coordenadas[en]) points.push({
-            name: `🔴 Carga: ${p}`,
-            value: [...coordenadas[en], 1],
+    for (const l of lugaresCarga) {
+        const mismoPais = lugaresDescarga.some(d => d.pais === l.pais);
+        const coord = getCoord(l, mismoPais ? [-0.8, 0.5] : [0, 0]);
+        if (coord) points.push({
+            name: `🔴 Carga: ${l.nombre}`,
+            value: [...coord, 1],
             symbolSize: 12,
-            itemStyle: { color: '#e03434' }
+            itemStyle: { color: '#FCE300' }
         });
     }
 
-    for (const p of paisesDescarga) {
-        const en = nombreAIngles[p] ?? p;
-        if (coordenadas[en]) points.push({
-            name: `🔵 Descarga: ${p}`,
-            value: [...coordenadas[en], 1],
+    for (const l of lugaresDescarga) {
+        const mismoPais = lugaresCarga.some(c => c.pais === l.pais);
+        const coord = getCoord(l, mismoPais ? [0.8, -0.5] : [0, 0]);
+        if (coord) points.push({
+            name: `🔵 Descarga: ${l.nombre}`,
+            value: [...coord, 1],
             symbolSize: 12,
             itemStyle: { color: '#06038D' }
         });
+    }
+
+    const todasCoords = [...lugaresCarga, ...lugaresDescarga]
+        .map(l => getCoord(l))
+        .filter(c => c !== null);
+
+    let center = [13, 52];
+    let zoom = 1.1;
+
+    if (todasCoords.length > 0) {
+        const lngs = todasCoords.map(c => c[0]);
+        const lats = todasCoords.map(c => c[1]);
+
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+
+        center = [(minLng + maxLng) / 2, (minLat + maxLat) / 2];
+
+        const diffLng = maxLng - minLng;
+        const diffLat = maxLat - minLat;
+        const diff = Math.max(diffLng, diffLat);
+
+        if (diff < 2) zoom = 6;
+        else if (diff < 5) zoom = 4;
+        else if (diff < 10) zoom = 2.5;
+        else if (diff < 20) zoom = 1.8;
+        else zoom = 1.2;
     }
 
     const option = {
