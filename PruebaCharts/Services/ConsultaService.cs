@@ -91,6 +91,18 @@ public class ConsultaService
         return (List<PaletsTotales>)await GenericRepository.GetAllAsync<PaletsTotales>(sql, new { Id = id });
     }
 
+    public async Task<List<Facturacion>> GetFacturacion(int id)
+    {
+        const string sql = @"
+            SELECT DocumentoVentas, ClaseDocumentoVentas, SociedadFac, FechaPedido, CodigoTrayecto, Solicitante, Nombre1, Vtotal, Departamento Dpto_original, FDescarga
+            FROM BI_Ventas
+            WHERE TRY_CONVERT(BIGINT, Solicitante) = @Id
+            GROUP BY DocumentoVentas, ClaseDocumentoVentas, SociedadFac, FechaPedido, CodigoTrayecto, Solicitante, Nombre1, Departamento, Vtotal, FDescarga
+            ORDER BY FechaPedido";
+
+        return (List<Facturacion>) await GenericRepository.GetAllAsync<Facturacion>(sql, new { Id = id });
+    }
+
     public async Task<DataTable> EjecutarConsultaAsync(
         ConsultaInfo consulta,
         Dictionary<string, object?> parametros,

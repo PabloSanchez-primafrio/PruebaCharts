@@ -1,0 +1,125 @@
+﻿@page "/facturacion"
+
+@inject IJSRuntime JS
+@inject ConsultaService ConsultaService
+
+<h1>Facturacion - @nombreCliente</h1>
+
+@if (_loading)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <div id="ventasChart" style="width: 100%; height: 500px;"></div>
+}
+
+@code{
+    private bool _loading = true;
+    private List<Facturacion> _datos = new();
+    private string? nombreCliente;
+
+    private static readonly string[] MonthColors = new[]
+    {
+        "#06038D", "#FCE300", "#911A00", "#FFB600",
+        "#008080", "#9966FF", "#3BD4B1", "#881C9E",
+        "#36A2EB", "#6A5ACD", "#FF8C00", "#225E87"
+    };
+    
+    private static readonly string[] MonthNames =
+    {
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _datos = await ConsultaService.GetFacturacion(212);
+        nombreCliente = _datos.First().Nombre1;
+        _loading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync (bool firstRender)
+    {
+        if (_loading) return;
+        await RenderChart();
+    }
+
+    private async Task RenderChart()
+    {
+        var anyoMes = _datos
+            .GroupBy(f => f.FechaPedido.Year)
+            .OrderBy(g => g.Key)
+            .ToDictionary(
+                g => g.Key,
+                g => g.GroupBy(f => f.FechaPedido.Month - 1)
+                        .ToDictionary(m => m.Key, m => m.Sum(f => (double)f.Vtotal))
+            );
+
+        var years = anyoMes.Keys.OrderBy(y => y).ToList();
+        var yAxisLabels = years.Select(y => y.ToString()).ToArray();
+
+        var series = Enumerable.Range(0, 12).Select(mesIdx => new
+        {
+            name = MonthNames[mesIdx],
+            type = "bar",
+            stack = "ventas",
+            label = new { show = false },
+            itemStyle = new { color = MonthColors[mesIdx] },
+            data = years.Select(year =>
+                anyoMes[year].TryGetValue(mesIdx, out var val) ? Math.Round(val, 2) : 0.0
+            ).ToArray()
+        }).ToArray();
+
+        var option = new
+        {
+            tooltip = new
+            {
+                trigger = "axis",
+                axisPointer = new { type = "shadow" },
+                formatter = @"
+                    function (params){
+                        let year = params[0].axisValue;
+                        let html = `<strong>Año: ${year}</strong><br/>`;
+
+                        params.forEach(p => {
+                            if (p.data > 0){
+                                html += `${p.marker} <strong>${p.seriesName}</strong>: ${p.data} €<br/>`
+                            }
+                        });
+                        return html;
+                    }
+                "
+            },
+            legend = new
+            {
+                data = MonthNames,
+                bottom = 0,
+                type = "scroll"
+            },
+            grid = new
+            {
+                left = "3%",
+                right = "4%",
+                bottom = "10%",
+                containLabel = true
+            },
+            xAxis = new
+            {
+                type = "value",
+                axisLabel = new
+                {
+                    formatter = "{value} €"
+                }
+            },
+            yAxis = new
+            {
+                type = "category",
+                data = yAxisLabels
+            },
+            series
+        };
+
+        await JS.InvokeVoidAsync("renderEChart", "ventasChart", option);
+    }
+}
