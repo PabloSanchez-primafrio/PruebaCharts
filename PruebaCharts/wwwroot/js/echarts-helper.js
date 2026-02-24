@@ -5,18 +5,25 @@
         return;
     }
 
-    // Destruir instancia previa si existe
     const existingInstance = echarts.getInstanceByDom(chartDom);
     if (existingInstance) {
         existingInstance.dispose();
     }
 
-    // Crear nueva instancia
     const myChart = echarts.init(chartDom);
+
+    // Esta es la funcion para tooltip para que aparezca correctamente en FacturacionCliente
+    // Pruebala mañana
+    if (options.tooltip?.formatter && typeof options.tooltip.formatter === "string") {
+        options.tooltip.formatter = new Function("return " + options.tooltip.formatter)();
+    }
+
     myChart.setOption(options);
 
-    // Hacer responsive
-    window.addEventListener('resize', function () {
-        myChart.resize();
-    });
+    if (chartDom._resizeHandler) {
+        window.removeEventListener('resize', chartDom._resizeHandler);
+    }
+
+    chartDom._resizeHandler = () => myChart.resize();
+    window.addEventListener('resize', chartDom._resizeHandler);
 };
