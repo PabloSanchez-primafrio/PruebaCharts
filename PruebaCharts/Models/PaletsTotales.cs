@@ -3,6 +3,7 @@
     public class PaletsTotales
     {
         public int Cliente { get; set; }
+        public string Matricula { get; set; }
         public string NombreCliente { get; set; }
         public string PaisCarga { get; set; }
         public string NombreLugarCarga { get; set; }

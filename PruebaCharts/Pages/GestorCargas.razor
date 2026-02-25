@@ -6,20 +6,38 @@
 
 <PageTitle>Gestión de Cargas</PageTitle>
 
-<h1 style="color:#06038D">
-    <strong>
-        <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -900 960 960" width="40px" fill="#06038D"><path d="M160-200h80v-320h480v320h80v-426L480-754 160-626v426Zm-80 80v-560l400-160 400 160v560H640v-320H320v320H80Zm280 0v-80h80v80h-80Zm80-120v-80h80v80h-80Zm80 120v-80h80v80h-80ZM240-520h480-480Z" /></svg>
-        Cargas - @nombreCliente
-    </strong>
-</h1>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 style="color:#06038D">
+        <strong>
+            <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -900 960 960" width="40px" fill="#06038D"><path d="M160-200h80v-320h480v320h80v-426L480-754 160-626v426Zm-80 80v-560l400-160 400 160v560H640v-320H320v320H80Zm280 0v-80h80v80h-80Zm80-120v-80h80v80h-80Zm80 120v-80h80v80h-80ZM240-520h480-480Z" /></svg>
+            Cargas - @nombreCliente
+        </strong>
+    </h1>
+    @if (trayectoSeleccionado != null)
+    {
+        var matricula = trayectos[trayectoSeleccionado.Value].First().Matricula.Replace("-", " ");
+        
+        <div style="position:relative; width:160px; height:40px; display:inline-block; margin-right: 10px">
+            <img src="/img/MatriculaRemolque.png"
+                style="position:absolute; top:0; left:0; width: 100%; height:100%; object-fit:contain; z-index:1;" />
+            <div style="position:absolute; top:0; left:0;width:100%; height:100%;
+                display:flex; align-items:center; justify-content:center;
+                color:#000000; font-weight:bold; font-size:20px; z-index:2;">
+                @matricula
+            </div>
+        </div>
+    }
+</div>
 
-<div class="container-fluid mt-3">
+
+
+<div class="container-fluid mt-0">
     <div class="row">
 
-        <div class="col-md-5">
-            <div class="card">
+        <div class="col-md-5 d-flex flex-column">
+            <div class="card flex-grow-1 d-flex flex-column">
 
-                <div class="card-body p-0">
+                <div class="card-body p-0 d-flex flex-column">
                     @if (isLoading)
                     {
                         <div class="text-center my-4">
@@ -72,6 +90,7 @@
                                             <tr>
                                                 <th></th>
                                                 <th>ID Trayecto</th>
+                                                <th>Matricula</th>
                                                 <th>Fecha</th>
                                                 <th class="text-end">Palets Totales</th>
                                             </tr>
@@ -89,6 +108,7 @@
                                                         <span>@(estaExpandido ? "▾" : "▸")</span>
                                                     </td>
                                                     <td><strong>@trayecto.Key</strong></td>
+                                                    <td>@trayecto.Value.First().Matricula</td>
                                                     <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
                                                     <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
                                                 </tr>
@@ -99,7 +119,7 @@
                                                         <td></td>
                                                         <td class="fw-semibold">Tipo Palets</td>
                                                         <td class="fw-semibold">Mercancia</td>
-                                                        <td class="text-end fw-semibold">Palets</td>
+                                                        <td class="text-end fw-semibold" colspan="2">Palets</td>
                                                     </tr>
                                                     @foreach (var carga in trayecto.Value)
                                                     {
@@ -108,6 +128,7 @@
                                                             <td></td>
                                                             <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
                                                             <td class="text-muted fst-italic">@carga.Mercancia</td>
+                                                            <td></td>
                                                             <td class="text-end text-muted">@carga.NumeroPalets</td>
                                                         </tr>
                                                     }
@@ -131,7 +152,7 @@
                                                 <td style="width:30px">
                                                     <span>@(anyoExpandido ? "▾" : "▸")</span>
                                                 </td>
-                                                <td colspan="3">
+                                                <td colspan="4">
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M578-80q-17 0-28.5-11.5T538-120q0-17 11.5-28.5T578-160h113l-92-65q-14-10-16.5-25.5T589-280q9-14 25-16.5t30 6.5l93 64-39-106q-6-15 1-30t23-21q16-6 31 1t21 23l38 106 30-109q5-16 18.5-24.5T890-390q16 5 25 18.5t4 29.5L849-80H578Zm-378-80q-33 0-56.5-23.5T120-240v-480q0-33 23.5-56.5T200-800h40v-80h80v80h240v-80h80v80h40q33 0 56.5 23.5T760-720v244q-20-3-40-3t-40 3v-84H200v320h280q0 20 3 40t11 40H200Zm0-480h480v-80H200v80Zm0 0v-80 80Z" /></svg>
                                                     @anyo.Key
                                                 </td>
@@ -150,7 +171,7 @@
                                                         <td class="ps-3" style="width:30px">
                                                             <span>@(mesExpandido ? "▾" : "▸")</span>
                                                         </td>
-                                                        <td colspan="3" class="ps-3">
+                                                        <td colspan="4" class="ps-3">
                                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-188.5-11.5Q280-423 280-440t11.5-28.5Q303-480 320-480t28.5 11.5Q360-457 360-440t-11.5 28.5Q337-400 320-400t-28.5-11.5ZM640-400q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-188.5-11.5Q280-263 280-280t11.5-28.5Q303-320 320-320t28.5 11.5Q360-297 360-280t-11.5 28.5Q337-240 320-240t-28.5-11.5ZM640-240q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z" /></svg>
                                                             @NombreMes(mes.Key)
                                                         </td>
@@ -161,6 +182,7 @@
                                                         <tr class="table-dark">
                                                             <th></th>
                                                             <th>ID Trayecto</th>
+                                                            <th>Matricula</th>
                                                             <th>Fecha</th>
                                                             <th class="text-end">Palets Totales</th>
                                                         </tr>
@@ -176,6 +198,7 @@
                                                                     <span>@(estaExpandido ? "▾" : "▸")</span>
                                                                 </td>
                                                                 <td><strong>@trayecto.Key</strong></td>
+                                                                <td>@trayecto.Value.First().Matricula</td>
                                                                 <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
                                                                 <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
                                                             </tr>
@@ -186,6 +209,7 @@
                                                                     <td></td>
                                                                     <td class="fw-semibold text-center">Tipo Palets</td>
                                                                     <td class="fw-semibold">Mercancia</td>
+                                                                    <td></td>
                                                                     <td class="text-end fw-semibold">Palets</td>
                                                                 </tr>
                                                                 @foreach (var carga in trayecto.Value)
@@ -197,6 +221,7 @@
                                                                         </td>
                                                                         <td class="text-muted fst-italic text-center">@carga.TipoPalets</td>
                                                                         <td class="text-muted fst-italic">@carga.Mercancia</td>
+                                                                        <td></td>
                                                                         <td class="text-end text-muted">@carga.NumeroPalets</td>
                                                                     </tr>
                                                                 }
@@ -387,7 +412,18 @@
         StateHasChanged();
 
         await Task.Delay(50);
+
+        var cargas = trayectos[idTrayecto];
+        var tiposEuropalet = new[] { "H", "E", "N", "NE" };
+        double ocupado = cargas.Sum(c =>
+            tiposEuropalet.Contains(c.TipoPalets)
+                ? (double)c.NumeroPalets / 33
+                : (double)c.NumeroPalets / 26
+        );
+        double pct = Math.Round(ocupado * 100, 1);
+
         await RenderRemolque();
+        await RenderGauge();
     }
 
     private static string NombreMes(int mes) => mes switch
@@ -416,6 +452,33 @@
             double capacidad = europalet.Contains(c.TipoPalets) ? 33.0 : 26.0;
             return (double)c.NumeroPalets / capacidad;
         });
+    }
+
+    protected async Task RenderGauge()
+    {
+        if (trayectoSeleccionado == null || _disposed) return;
+
+        var cargas = trayectos[trayectoSeleccionado.Value];
+        var tiposEuropalet = new[] { "H", "E", "N", "NE" };
+
+        double ocupado = cargas.Sum(c =>
+            tiposEuropalet.Contains(c.TipoPalets)
+                ? (double)c.NumeroPalets / 33
+                : (double)c.NumeroPalets / 26
+        );
+
+        double pct = Math.Round(ocupado * 100, 1);
+        string color = pct >= 90 ? "#dc3545" : pct >= 70 ? "#fd7e14" : "#06038D";
+
+        try
+        {
+            await JS.InvokeVoidAsync("initOcupacionGauge", "ocupacionGauge", pct, color);
+        }
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error gauge: {ex.Message}");
+        }
     }
 
     protected async Task RenderRemolque()

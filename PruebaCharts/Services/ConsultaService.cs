@@ -60,7 +60,7 @@ public class ConsultaService
             SELECT G.Cliente Cliente, L.Nombre NombreCliente, YEAR(C.FechaTrabajo) Anyo, MONTH(C.FechaTrabajo) Mes, COUNT(DISTINCT NTrayecto1) NumeroViajes
             FROM GRUPAJES_CABECERA C INNER JOIN GRUPAJES G ON C.FechaTrabajo=G.FechaTrabajo AND C.Departamento = G.Departamento AND C.Agrupacion=G.IdAgrupacionOptimizador AND G.Anulado=0
             JOIN Clientes L ON G.Cliente=L.Codigocli
-            WHERE G.Cliente=@Id AND C.Anulada=0
+            WHERE G.Cliente=@Id AND C.Anulada=0 AND C.MEntrega IS NOT NULL
             GROUP BY G.Cliente, L.Nombre, YEAR(C.FechaTrabajo), MONTH(C.FechaTrabajo)
             ORDER BY Anyo, Mes";
 
@@ -70,7 +70,7 @@ public class ConsultaService
     public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets
+            SELECT G.Cliente Cliente, COALESCE(NULLIF(C.MEntrega, ''), 'SIN ASIGNAR') Matricula, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento

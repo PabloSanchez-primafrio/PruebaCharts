@@ -60,16 +60,17 @@ else
             );
 
         var years = anyoMes.Keys.OrderBy(y => y).ToList();
-        var yAxisLabels = years.Select(y => y.ToString()).ToArray();
 
-        var series = Enumerable.Range(0, 12).Select(mesIdx => new
+        var series = years.Select((year, idx) => new
         {
-            name = MonthNames[mesIdx],
+            name = year.ToString(),
             type = "bar",
-            stack = "ventas",
-            label = new { show = false },
-            itemStyle = new { color = MonthColors[mesIdx] },
-            data = years.Select(year =>
+            barGap = "5%",
+            label = new
+            {
+                show = false
+            },
+            data = Enumerable.Range(0, 12).Select(mesIdx =>
                 anyoMes[year].TryGetValue(mesIdx, out var val) ? Math.Round(val, 2) : 0.0
             ).ToArray()
         }).ToArray();
@@ -81,40 +82,36 @@ else
                 trigger = "axis",
                 axisPointer = new { type = "shadow" },
                 formatter = @"
-                    function (params){
-                        const year = params[0]?.axisValue ?? '';
-                        const currency = new Intl.NumberFormat('es-ES', {
-                            style: 'currency',
-                            currency: 'EUR',
-                            maximumFractionDigits: 0 
-                        });
-                        let html = `<strong>Año: ${year}</strong><br/>`;
-                        let total = 0;
+                function (params) {
+                    const month = params[0]?.axisValue ?? '';
+                    const currency = new Intl.NumberFormat('es-ES', {
+                        style: 'currency',
+                        currency: 'EUR',
+                        maximumFractionDigits: 0,
+                        useGrouping: 'always'
+                    });
+                    let html = `<strong>${month}</strong><br/>`;
 
-                        params.forEach(p => {
-                            let v=0;
-                            if (typeof p.data === 'number') v = p.data;
-                            else if (p?.data?.value != null && typeof p.data.value === 'number') v = p.data.value;
-                            else if (typeof p.value === 'number') v = p.value;
+                    params.forEach(p => {
+                        let v = typeof p.data === 'number' ? p.data : (p?.data?.value ?? 0);
+                        if (v > 0) {
+                            html += `${p.marker} <strong>${p.seriesName}</strong>: ${currency.format(v)}<br/>`;
+                        }
+                    });
 
-                            if (v > 0)
-                            {
-                                html += `${p.marker} <strong>${p.seriesName}</strong>: ${currency.format(v)}<br/>`
-                                total += v;
-                            }
-                        });
-                        html += `<hr style=""margin: 4px 0; border-top:1px solid #ccc""/>`;
-                        html += `<strong>Total:</strong> ${currency.format(total)}`;
-
-                        return html;
-                    }
-                "
+                    return html;
+                }
+            "
             },
             legend = new
             {
-                data = MonthNames,
+                data = years.Select(y => y.ToString()).ToArray(),
                 bottom = 0,
-                type = "scroll"
+                type = "scroll",
+                selected = years.ToDictionary(
+                    y => y.ToString(),
+                    y => y >= years.Max() - 1
+                )
             },
             grid = new
             {
@@ -125,16 +122,14 @@ else
             },
             xAxis = new
             {
-                type = "value",
-                axisLabel = new
-                {
-                    formatter = "{value} €"
-                }
+                type = "category",
+                data = MonthNames,
+                axisLabel = new { rotate = 30 }
             },
             yAxis = new
             {
-                type = "category",
-                data = yAxisLabels
+                type = "value",
+                axisLabel = new { formatter = "{value} €" }
             },
             series
         };

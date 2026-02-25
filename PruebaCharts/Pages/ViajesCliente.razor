@@ -105,26 +105,20 @@
 
         var meses = new[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
 
-        var series = new List<object>();
-        foreach (var anyo in anyos)
+        var series = anyos.Select(anyo => new
         {
-            var datosAnio = new List<int>();
-            for (int mes = 1; mes <= 12; mes++)
+            name = anyo.ToString(),
+            type = "bar",
+            barGap = "5%",
+            label = new
             {
-                var viajes = datosPorAnyoMes.FirstOrDefault(d => d.Anyo == anyo && d.Mes == mes)?.TotalViajes ?? 0;
-                datosAnio.Add(viajes);
-            }
-
-            series.Add(new
-            {
-                name = anyo.ToString(),
-                type = "line",
-                stack = "Total",
-                areaStyle = new { },
-                emphasis = new { focus = "series" },
-                data = datosAnio
-            });
-        }
+                show = false
+            },
+            emphasis = new { focus = "series" },
+            data = Enumerable.Range(1, 12).Select(mes =>
+                datosPorAnyoMes.FirstOrDefault(d => d.Anyo == anyo && d.Mes == mes)?.TotalViajes ?? 0
+            ).ToArray()
+        }).ToArray();
 
         var options = new
         {
@@ -145,7 +139,12 @@
             legend = new
             {
                 data = anyos.Select(a => a.ToString()).ToArray(),
-                top = "30px"
+                top = "30px",
+                type = "scroll",
+                selected = anyos.ToDictionary(
+                    y => y.ToString(),
+                    y => y >= anyos.Max() - 1
+                )
             },
             toolbox = new
             {
@@ -161,22 +160,15 @@
                 bottom = "3%",
                 containLabel = true
             },
-            xAxis = new[]
+            xAxis = new
             {
-                new
-                {
-                    type = "category",
-                    boundaryGap = false,
-                    data = meses
-                }
+                type = "category",
+                data = meses
             },
-            yAxis = new[]
+            yAxis = new
             {
-                new
-                {
-                    type = "value",
-                    name = "Número de Viajes"
-                }
+                type = "value",
+                name = "Número de Viajes"
             },
             series = series.ToArray()
         };
