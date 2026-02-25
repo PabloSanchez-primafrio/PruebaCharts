@@ -12,10 +12,14 @@
 
     const myChart = echarts.init(chartDom);
 
-    // Esta es la funcion para tooltip para que aparezca correctamente en FacturacionCliente
-    // Pruebala mañana
     if (options.tooltip?.formatter && typeof options.tooltip.formatter === "string") {
-        options.tooltip.formatter = new Function("return " + options.tooltip.formatter)();
+        const raw = options.tooltip.formatter.trim();
+
+        try {
+            options.tooltip.formatter = eval("(" + raw + ")");
+        } catch (e) {
+            console.error("No se pudo compilar tooltip.formatter:", e, raw);
+        }
     }
 
     myChart.setOption(options);

@@ -3,7 +3,10 @@
 @inject IJSRuntime JS
 @inject ConsultaService ConsultaService
 
-<h1>Facturacion - @nombreCliente</h1>
+<h1 style="color:#06038D">
+    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -900 960 960" width="40px" fill="#06038D"><path d="M440-200h80v-40h40q17 0 28.5-11.5T600-280v-120q0-17-11.5-28.5T560-440H440v-40h160v-80h-80v-40h-80v40h-40q-17 0-28.5 11.5T360-520v120q0 17 11.5 28.5T400-360h120v40H360v80h80v40ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-560v-160H240v640h480v-480H520ZM240-800v160-160 640-640Z" /></svg>
+    <strong>Facturacion - @nombreCliente</strong>
+</h1>
 
 @if (_loading)
 {
@@ -79,14 +82,30 @@ else
                 axisPointer = new { type = "shadow" },
                 formatter = @"
                     function (params){
-                        let year = params[0].axisValue;
+                        const year = params[0]?.axisValue ?? '';
+                        const currency = new Intl.NumberFormat('es-ES', {
+                            style: 'currency',
+                            currency: 'EUR',
+                            maximumFractionDigits: 0 
+                        });
                         let html = `<strong>Año: ${year}</strong><br/>`;
+                        let total = 0;
 
                         params.forEach(p => {
-                            if (p.data > 0){
-                                html += `${p.marker} <strong>${p.seriesName}</strong>: ${p.data} €<br/>`
+                            let v=0;
+                            if (typeof p.data === 'number') v = p.data;
+                            else if (p?.data?.value != null && typeof p.data.value === 'number') v = p.data.value;
+                            else if (typeof p.value === 'number') v = p.value;
+
+                            if (v > 0)
+                            {
+                                html += `${p.marker} <strong>${p.seriesName}</strong>: ${currency.format(v)}<br/>`
+                                total += v;
                             }
                         });
+                        html += `<hr style=""margin: 4px 0; border-top:1px solid #ccc""/>`;
+                        html += `<strong>Total:</strong> ${currency.format(total)}`;
+
                         return html;
                     }
                 "
