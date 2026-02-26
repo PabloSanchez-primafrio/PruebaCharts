@@ -175,10 +175,10 @@ export async function initEuropaMap(divId, lugaresCarga, lugaresDescarga) {
         const diffLat = maxLat - minLat;
         const diff = Math.max(diffLng, diffLat);
 
-        if (diff < 2) zoom = 40;
-        else if (diff < 10) zoom = 30;
+        if (diff < 2) zoom = 35;
+        else if (diff < 10) zoom = 15;
         else if (diff < 15) zoom = 10;
-        else if (diff < 30) zoom = 5;
+        else if (diff < 30) zoom = 2.5;
         else zoom = 1.2;
     }
 

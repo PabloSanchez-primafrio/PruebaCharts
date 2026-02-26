@@ -70,7 +70,7 @@ public class ConsultaService
     public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, COALESCE(NULLIF(C.MEntrega, ''), 'SIN ASIGNAR') Matricula, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets
+            SELECT G.Cliente Cliente, COALESCE(NULLIF(C.MEntrega, ''), 'SIN ASIGNAR') Matricula, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets, COALESCE(NULLIF(T.KmTotal, ''), 0) KmTotal
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento
@@ -81,6 +81,7 @@ public class ConsultaService
                                         JOIN Pais P ON U.Pais = P.Codigo_pais
                                         JOIN Lugar UD ON G.LugarDescarga = UD.Codigo
                                         JOIN Pais PD ON UD.Pais = PD.Codigo_pais
+                                        LEFT JOIN [PBI_NTrayecto Datos] T ON C.Ntrayecto1 = T.NTrayecto1
             WHERE G.Cliente=@Id AND C.Anulada = 0 AND G.Palets > 0 AND G.Palets <=
                                                                             CASE
                                                                                 WHEN G.TipoPalets IN ('H', 'E', 'N', 'NE') THEN 33

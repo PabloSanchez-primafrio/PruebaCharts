@@ -18,5 +18,6 @@
         public int Trayecto { get; set; }
         public string? Mercancia { get; set; }
         public int NumeroPalets { get; set; }
+        public int KmTotal { get; set; }
     }
 }

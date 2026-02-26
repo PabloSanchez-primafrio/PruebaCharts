@@ -15,11 +15,18 @@
     </h1>
     @if (trayectoSeleccionado != null)
     {
-        var matricula = trayectos[trayectoSeleccionado.Value].First().Matricula.Replace("-", " ");
-        
+        var matricula = trayectos[trayectoSeleccionado.Value].First().Matricula.Replace("-", "  ");
+        <div class="row mb-2">
+            <div class="col-12">
+                <button class="btn" style="background-color:#06038D; color:white;" @onclick="VolverALista">
+                    Volver a la lista
+                </button>
+            </div>
+        </div>
+
         <div style="position:relative; width:160px; height:40px; display:inline-block; margin-right: 10px">
             <img src="/img/MatriculaRemolque.png"
-                style="position:absolute; top:0; left:0; width: 100%; height:100%; object-fit:contain; z-index:1;" />
+                 style="position:absolute; top:0; left:0; width: 100%; height:100%; object-fit:contain; z-index:1;" />
             <div style="position:absolute; top:0; left:0;width:100%; height:100%;
                 display:flex; align-items:center; justify-content:center;
                 color:#000000; font-weight:bold; font-size:20px; z-index:2;">
@@ -29,298 +36,293 @@
     }
 </div>
 
-
-
 <div class="container-fluid mt-0">
-    <div class="row">
 
-        <div class="col-md-5 d-flex flex-column">
-            <div class="card flex-grow-1 d-flex flex-column">
+    @if (trayectoSeleccionado == null)
+    {
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex flex-column">
+                <div class="card flex-grow-1 d-flex flex-column">
+                    <div class="card-body p-0 d-flex flex-column">
 
-                <div class="card-body p-0 d-flex flex-column">
-                    @if (isLoading)
-                    {
-                        <div class="text-center my-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando...</span>
+                        @if (isLoading)
+                        {
+                            <div class="text-center my-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
+                                <p class="mt-2"><em>Cargando datos...</em></p>
                             </div>
-                            <p class="mt-2"><em>Cargando datos...</em></p>
-                        </div>
-                    }
-                    else if (!trayectos.Any())
-                    {
-                        <div class="alert alert-warning m-2">No se encontraron trayectos.</div>
-                    }
-                    else
-                    {
-                        <div class="card mb-2 mx-2 mt-2">
-                            <div class="card-body py-2">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">ID Trayecto</label>
-                                        <input type="text" class="form-control form-control-sm"
-                                               placeholder="Buscar por ID Trayecto..."
-                                               @bind="filtroBusqueda" @bind:event="oninput" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label small fw-semibold">Fecha</label>
-                                        <input type="date" class="form-control form-control-sm"
-                                               @bind="filtroFecha" @bind:event="oninput" />
+                        }
+                        else if (!trayectos.Any())
+                        {
+                            <div class="alert alert-warning m-2">No se encontraron trayectos.</div>
+                        }
+                        else
+                        {
+                            <div class="card mb-2 mx-2 mt-2">
+                                <div class="card-body py-2">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">ID Trayecto</label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                   placeholder="Buscar por ID Trayecto..."
+                                                   @bind="filtroBusqueda" @bind:event="oninput" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-semibold">Fecha</label>
+                                            <input type="date" class="form-control form-control-sm"
+                                                   @bind="filtroFecha" @bind:event="oninput" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div style="max-height: calc(100vh - 220px); overflow-y: auto;">
-                            @if (!string.IsNullOrEmpty(filtroBusqueda) || filtroFecha != null)
-                            {
-                                var resultados = trayectos
-                                .Where(t =>
-                                (string.IsNullOrEmpty(filtroBusqueda) || t.Key.ToString().Contains(filtroBusqueda)) &&
-                                (filtroFecha == null || t.Value.First().FechaTrabajo.Date == filtroFecha.Value.Date)
-                                ).ToList();
 
-                                @if (!resultados.Any())
+                            <div style="max-height: calc(100vh - 220px); overflow-y: auto;">
+                                @if (!string.IsNullOrEmpty(filtroBusqueda) || filtroFecha != null)
                                 {
-                                    <div class="alert alert-danger m-2">No se encontraron trayectos.</div>
+                                    var resultados = trayectos
+                                        .Where(t =>
+                                            (string.IsNullOrEmpty(filtroBusqueda) || t.Key.ToString().Contains(filtroBusqueda)) &&
+                                            (filtroFecha == null || t.Value.First().FechaTrabajo.Date == filtroFecha.Value.Date)
+                                        ).ToList();
+
+                                    @if (!resultados.Any())
+                                    {
+                                        <div class="alert alert-danger m-2">No se encontraron trayectos.</div>
+                                    }
+                                    else
+                                    {
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th></th>
+                                                    <th>ID Trayecto</th>
+                                                    <th>Matricula</th>
+                                                    <th>Fecha</th>
+                                                    <th class="text-end">Palets Totales</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var trayecto in resultados.Where(t => CalcularOcupacion(t.Value) <= 1))
+                                                {
+                                                    var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
+                                                    var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+
+                                                    <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                                        style="cursor:pointer"
+                                                        @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                        <td></td>
+                                                        <td><strong>@trayecto.Key</strong></td>
+                                                        <td>@trayecto.Value.First().Matricula</td>
+                                                        <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
+                                                        <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
                                 }
                                 else
                                 {
                                     <table class="table table-hover mb-0">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th></th>
-                                                <th>ID Trayecto</th>
-                                                <th>Matricula</th>
-                                                <th>Fecha</th>
-                                                <th class="text-end">Palets Totales</th>
-                                            </tr>
-                                        </thead>
                                         <tbody>
-                                            @foreach (var trayecto in resultados.Where(t => CalcularOcupacion(t.Value) <= 1))
+                                            @foreach (var anyo in trayectosPorAnyoMes)
                                             {
-                                                var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
-                                                var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+                                                var anyoExpandido = anyosExpandidos.Contains(anyo.Key);
 
-                                                <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                                <tr class="table-secondary fw-bold"
                                                     style="cursor:pointer"
-                                                    @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                    @onclick="() => ToggleAnyo(anyo.Key)">
                                                     <td style="width:30px">
-                                                        <span>@(estaExpandido ? "▾" : "▸")</span>
+                                                        <span>@(anyoExpandido ? "▾" : "▸")</span>
                                                     </td>
-                                                    <td><strong>@trayecto.Key</strong></td>
-                                                    <td>@trayecto.Value.First().Matricula</td>
-                                                    <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
-                                                    <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                    <td colspan="4">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M578-80q-17 0-28.5-11.5T538-120q0-17 11.5-28.5T578-160h113l-92-65q-14-10-16.5-25.5T589-280q9-14 25-16.5t30 6.5l93 64-39-106q-6-15 1-30t23-21q16-6 31 1t21 23l38 106 30-109q5-16 18.5-24.5T890-390q16 5 25 18.5t4 29.5L849-80H578Zm-378-80q-33 0-56.5-23.5T120-240v-480q0-33 23.5-56.5T200-800h40v-80h80v80h240v-80h80v80h40q33 0 56.5 23.5T760-720v244q-20-3-40-3t-40 3v-84H200v320h280q0 20 3 40t11 40H200Zm0-480h480v-80H200v80Zm0 0v-80 80Z" /></svg>
+                                                        @anyo.Key
+                                                    </td>
                                                 </tr>
 
-                                                @if (estaExpandido)
+                                                @if (anyoExpandido)
                                                 {
-                                                    <tr class="table-secondary">
-                                                        <td></td>
-                                                        <td class="fw-semibold">Tipo Palets</td>
-                                                        <td class="fw-semibold">Mercancia</td>
-                                                        <td class="text-end fw-semibold" colspan="2">Palets</td>
-                                                    </tr>
-                                                    @foreach (var carga in trayecto.Value)
+                                                    @foreach (var mes in anyo.Value)
                                                     {
-                                                        <tr class="table-light" style="cursor:pointer"
-                                                            @onclick="() => ToggleTrayecto(trayecto.Key)">
-                                                            <td></td>
-                                                            <td class="text-muted fst-italic">📦 @carga.TipoPalets</td>
-                                                            <td class="text-muted fst-italic">@carga.Mercancia</td>
-                                                            <td></td>
-                                                            <td class="text-end text-muted">@carga.NumeroPalets</td>
+                                                        var mesKey = $"{anyo.Key}-{mes.Key}";
+                                                        var mesExpandido = mesesExpandidos.Contains(mesKey);
+
+                                                        <tr class="table-light fw-semibold"
+                                                            style="cursor:pointer"
+                                                            @onclick="() => ToggleMes(mesKey)">
+                                                            <td class="ps-3" style="width:30px">
+                                                                <span>@(mesExpandido ? "▾" : "▸")</span>
+                                                            </td>
+                                                            <td colspan="4" class="ps-3">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-188.5-11.5Q280-423 280-440t11.5-28.5Q303-480 320-480t28.5 11.5Q360-457 360-440t-11.5 28.5Q337-400 320-400t-28.5-11.5ZM640-400q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-188.5-11.5Q280-263 280-280t11.5-28.5Q303-320 320-320t28.5 11.5Q360-297 360-280t-11.5 28.5Q337-240 320-240t-28.5-11.5ZM640-240q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z" /></svg>
+                                                                @NombreMes(mes.Key)
+                                                            </td>
                                                         </tr>
+
+                                                        @if (mesExpandido)
+                                                        {
+                                                            <tr class="table-dark">
+                                                                <th></th>
+                                                                <th>ID Trayecto</th>
+                                                                <th>Matricula</th>
+                                                                <th>Fecha</th>
+                                                                <th class="text-end">Palets Totales</th>
+                                                            </tr>
+                                                            @foreach (var trayecto in mes.Value.Where(t => CalcularOcupacion(t.Value) <= 1))
+                                                            {
+                                                                var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
+                                                                var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
+
+                                                                <tr class="@(estaSeleccionado ? "table-primary" : "")"
+                                                                    style="cursor:pointer"
+                                                                    @onclick="() => ToggleTrayecto(trayecto.Key)">
+                                                                    <td></td>
+                                                                    <td><strong>@trayecto.Key</strong></td>
+                                                                    <td>@trayecto.Value.First().Matricula</td>
+                                                                    <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
+                                                                    <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
+                                                                </tr>
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                         </tbody>
                                     </table>
                                 }
-                            }
-                            else
-                            {
-                                <table class="table table-hover mb-0">
-                                    <tbody>
-                                        @foreach (var anyo in trayectosPorAnyoMes)
-                                        {
-                                            var anyoExpandido = anyosExpandidos.Contains(anyo.Key);
+                            </div>
+                        }
 
-                                            <tr class="table-secondary fw-bold"
-                                                style="cursor:pointer"
-                                                @onclick="() => ToggleAnyo(anyo.Key)">
-                                                <td style="width:30px">
-                                                    <span>@(anyoExpandido ? "▾" : "▸")</span>
-                                                </td>
-                                                <td colspan="4">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M578-80q-17 0-28.5-11.5T538-120q0-17 11.5-28.5T578-160h113l-92-65q-14-10-16.5-25.5T589-280q9-14 25-16.5t30 6.5l93 64-39-106q-6-15 1-30t23-21q16-6 31 1t21 23l38 106 30-109q5-16 18.5-24.5T890-390q16 5 25 18.5t4 29.5L849-80H578Zm-378-80q-33 0-56.5-23.5T120-240v-480q0-33 23.5-56.5T200-800h40v-80h80v80h240v-80h80v80h40q33 0 56.5 23.5T760-720v244q-20-3-40-3t-40 3v-84H200v320h280q0 20 3 40t11 40H200Zm0-480h480v-80H200v80Zm0 0v-80 80Z" /></svg>
-                                                    @anyo.Key
-                                                </td>
-                                            </tr>
-
-                                            @if (anyoExpandido)
-                                            {
-                                                @foreach (var mes in anyo.Value)
-                                                {
-                                                    var mesKey = $"{anyo.Key}-{mes.Key}";
-                                                    var mesExpandido = mesesExpandidos.Contains(mesKey);
-
-                                                    <tr class="table-light fw-semibold"
-                                                        style="cursor:pointer"
-                                                        @onclick="() => ToggleMes(mesKey)">
-                                                        <td class="ps-3" style="width:30px">
-                                                            <span>@(mesExpandido ? "▾" : "▸")</span>
-                                                        </td>
-                                                        <td colspan="4" class="ps-3">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-188.5-11.5Q280-423 280-440t11.5-28.5Q303-480 320-480t28.5 11.5Q360-457 360-440t-11.5 28.5Q337-400 320-400t-28.5-11.5ZM640-400q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-188.5-11.5Q280-263 280-280t11.5-28.5Q303-320 320-320t28.5 11.5Q360-297 360-280t-11.5 28.5Q337-240 320-240t-28.5-11.5ZM640-240q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z" /></svg>
-                                                            @NombreMes(mes.Key)
-                                                        </td>
-                                                    </tr>
-
-                                                    @if (mesExpandido)
-                                                    {
-                                                        <tr class="table-dark">
-                                                            <th></th>
-                                                            <th>ID Trayecto</th>
-                                                            <th>Matricula</th>
-                                                            <th>Fecha</th>
-                                                            <th class="text-end">Palets Totales</th>
-                                                        </tr>
-                                                        @foreach (var trayecto in mes.Value.Where(t => CalcularOcupacion(t.Value) <= 1))
-                                                        {
-                                                            var estaExpandido = trayectosExpandidos.Contains(trayecto.Key.ToString());
-                                                            var estaSeleccionado = trayectoSeleccionado == trayecto.Key;
-
-                                                            <tr class="@(estaSeleccionado ? "table-primary" : "")"
-                                                                style="cursor:pointer"
-                                                                @onclick="() => ToggleTrayecto(trayecto.Key)">
-                                                                <td class="ps-4" style="width:30px">
-                                                                    <span>@(estaExpandido ? "▾" : "▸")</span>
-                                                                </td>
-                                                                <td><strong>@trayecto.Key</strong></td>
-                                                                <td>@trayecto.Value.First().Matricula</td>
-                                                                <td>@trayecto.Value.First().FechaTrabajo.ToShortDateString()</td>
-                                                                <td class="text-end">@trayecto.Value.Sum(c => c.NumeroPalets)</td>
-                                                            </tr>
-
-                                                            @if (estaExpandido)
-                                                            {
-                                                                <tr class="table-secondary">
-                                                                    <td></td>
-                                                                    <td class="fw-semibold text-center">Tipo Palets</td>
-                                                                    <td class="fw-semibold">Mercancia</td>
-                                                                    <td></td>
-                                                                    <td class="text-end fw-semibold">Palets</td>
-                                                                </tr>
-                                                                @foreach (var carga in trayecto.Value)
-                                                                {
-                                                                    <tr class="table-light" style="cursor:pointer"
-                                                                        @onclick="() => ToggleTrayecto(trayecto.Key)">
-                                                                        <td>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M200-640v440h560v-440H640v320l-160-80-160 80v-320H200Zm0 520q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v499q0 33-23.5 56.5T760-120H200Zm16-600h528l-34-40H250l-34 40Zm184 80v190l80-40 80 40v-190H400Zm-200 0h560-560Z" /></svg>
-                                                                        </td>
-                                                                        <td class="text-muted fst-italic text-center">@carga.TipoPalets</td>
-                                                                        <td class="text-muted fst-italic">@carga.Mercancia</td>
-                                                                        <td></td>
-                                                                        <td class="text-end text-muted">@carga.NumeroPalets</td>
-                                                                    </tr>
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    </tbody>
-                                </table>
-                            }
-                        </div>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
+    }
+    else
+    {
+        var cargas = trayectos[trayectoSeleccionado.Value];
+        var tiposEuropalet = new[] { "H", "E", "N", "NE" };
+        double ocupado = cargas.Sum(c =>
+            tiposEuropalet.Contains(c.TipoPalets)
+                ? (double) c.NumeroPalets / 33
+                : (double) c.NumeroPalets / 26
+        );
 
-        <div class="col-md-7" style="overflow-y: visible;">
-            @if (trayectoSeleccionado != null)
-            {
-                var cargas = trayectos[trayectoSeleccionado.Value];
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z" /></svg>
-                            Carga del trayecto <strong>@trayectoSeleccionado</strong>
-                            - @cargas.First().FechaTrabajo.ToShortDateString()
-                            - @cargas.Sum(p => p.NumeroPalets) palets totales
-                        </h5>
-                    </div>
-                    <div class="card-body p-0 align-content-center" >
-                        <div id="truckMap" style="height:293px"></div>
-                    </div>
-                </div>
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6 class="mb-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-120v-80h800v80H80Zm40-120v-280h120v280H120Zm200 0v-480h120v480H320Zm200 0v-360h120v360H520Zm200 0v-600h120v600H720Z" /></svg>
-                            Resumen del trayecto
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        @{
-                            var tiposEuropalet = new[] { "H", "E", "N", "NE" };
-                            double ocupado = cargas.Sum(c =>
-                                tiposEuropalet.Contains(c.TipoPalets)
-                                    ? (double)c.NumeroPalets / 33
-                                    : (double)c.NumeroPalets / 26
-                            );
-                            double libre = Math.Max(0, 1 - ocupado);
-                        }
-                        <div class="row text-center">
-                            <div class="col">
-
-                                <div class="fw-semibold text-muted small">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
-                                    Palets totales
-                                </div>
-                                <div class="fs-5 fw-bold">@cargas.Sum(c=>c.NumeroPalets)</div>
-                            </div>
-                            <div class="col">
-                                <div class="fw-semibold text-muted small">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
-                                    Ocupación
-                                </div>
-                                <div class="fs-5 fw-bold text-primary">@Math.Round(ocupado * 100, 1)%</div>
+                                    Ocupación Remolque
+                                </h6>
                             </div>
-                            <div class="col">
-                                <div class="fw-semibold text-muted small">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M160-120q-50 0-85-35t-35-85q0-26 10-49.5T80-330v-190h80v-240h320l188 443q6 14 9 28t3 29q0 58-41 99t-99 41q-41 0-75.5-21.5T413-200H273q-13 36-44 58t-69 22Zm560-40v-640h80v560h120v80H720Zm-531.5-51.5Q200-223 200-240t-11.5-28.5Q177-280 160-280t-28.5 11.5Q120-257 120-240t11.5 28.5Q143-200 160-200t28.5-11.5Zm394-6Q600-235 600-260t-17.5-42.5Q565-320 540-320t-42.5 17.5Q480-285 480-260t17.5 42.5Q515-200 540-200t42.5-17.5ZM273-280h128q2-11 4.5-20.5T413-320h-90L206-440h-46v80q38 0 69 22t44 58Zm84-120h189L427-680H240v160l117 120Zm-34 80-18.5-19q-18.5-19-40-41.5t-40-41L206-440h-46 46l117 120h90-90Z" /></svg>
-                                    Nº de Cargas
-                                </div>
-                                <div class="fs-5 fw-bold txt-success">@cargas.Where(c => !string.IsNullOrEmpty(c.PaisCarga)).GroupBy(c => c.NombreLugarCarga).Count()</div>
-                            </div>
-                            <div class="col">
-                                <div class="fw-semibold text-muted small">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="m720-80 120-120-28-28-72 72v-164h-40v164l-72-72-28 28L720-80ZM480-800 243-663l237 137 237-137-237-137ZM120-321v-318q0-22 10.5-40t29.5-29l280-161q10-5 19.5-8t20.5-3q11 0 21 3t19 8l280 161q19 11 29.5 29t10.5 40v159h-80v-116L479-434 200-596v274l240 139v92L160-252q-19-11-29.5-29T120-321ZM578.5-58.5Q520-117 520-200t58.5-141.5Q637-400 720-400t141.5 58.5Q920-283 920-200T861.5-58.5Q803 0 720 0T578.5-58.5ZM480-491Z" /></svg>
-                                    Nº de Descargas
-                                </div>
-                                <div class="fs-5 fw-bold txt-success">@cargas.Where(c => !string.IsNullOrEmpty(c.PaisDescarga)).GroupBy(c => c.NombreLugarDescarga).Count()</div>
+                            <div class="card-body d-flex align-items-center justify-content-center w-100">
+                                <div id="ocupacionGauge" style="width:100%; height:240px;"></div>
                             </div>
                         </div>
-                        <div id="europaMap" style="height: 350px; width:100%;"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
+                                    Ocupación Remolque
+                                </h6>
+                            </div>
+                            <div class="card-body d-flex align-items-center justify-content-center w-100">
+                                <div id="ocupacionGauge" style="width:100%; height:240px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z" /></svg>
+                                    Carga del trayecto <strong>@trayectoSeleccionado</strong>
+                                    - @cargas.First().FechaTrabajo.ToShortDateString()
+                                    - @cargas.Sum(p => p.NumeroPalets) palets totales
+                                </h5>
+                            </div>
+                            <div class="card-body p-0 align-content-center">
+                                <div id="truckMap" style="height:293px"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <br />
+                <div class="row">
+
+                    <div class="col-md-5">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
+                                    Ocupación Remolque
+                                </h6>
+                            </div>
+                            <div class="card-body d-flex align-items-center justify-content-center w-100">
+                                <div id="ocupacionGauge" style="width:100%; height:240px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-120v-80h800v80H80Zm40-120v-280h120v280H120Zm200 0v-480h120v480H320Zm200 0v-360h120v360H520Zm200 0v-600h120v600H720Z" /></svg>
+                                    Resumen del trayecto
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center mb-3">
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
+                                            Palets totales
+                                        </div>
+                                        <div class="fs-5 fw-bold">@cargas.Sum(c => c.NumeroPalets)</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M247-167q-47-47-47-113v-327q-35-13-57.5-43.5T120-720q0-50 35-85t85-35q50 0 85 35t35 85q0 39-22.5 69.5T280-607v327q0 33 23.5 56.5T360-200q33 0 56.5-23.5T440-280v-400q0-66 47-113t113-47q66 0 113 47t47 113v327q35 13 57.5 43.5T840-240q0 50-35 85t-85 35q-50 0-85-35t-35-85q0-39 22.5-70t57.5-43v-327q0-33-23.5-56.5T600-760q-33 0-56.5 23.5T520-680v400q0 66-47 113t-113 47q-66 0-113-47Zm-7-513q17 0 28.5-11.5T280-720q0-17-11.5-28.5T240-760q-17 0-28.5 11.5T200-720q0 17 11.5 28.5T240-680Zm480 480q17 0 28.5-11.5T760-240q0-17-11.5-28.5T720-280q-17 0-28.5 11.5T680-240q0 17 11.5 28.5T720-200ZM240-720Zm480 480Z" /></svg>
+                                            Kilometros Totales
+                                        </div>
+                                        <div class="fs-5 fw-bold">@cargas.First().KmTotal</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M160-120q-50 0-85-35t-35-85q0-26 10-49.5T80-330v-190h80v-240h320l188 443q6 14 9 28t3 29q0 58-41 99t-99 41q-41 0-75.5-21.5T413-200H273q-13 36-44 58t-69 22Zm560-40v-640h80v560h120v80H720Zm-531.5-51.5Q200-223 200-240t-11.5-28.5Q177-280 160-280t-28.5 11.5Q120-257 120-240t11.5 28.5Q143-200 160-200t28.5-11.5Zm394-6Q600-235 600-260t-17.5-42.5Q565-320 540-320t-42.5 17.5Q480-285 480-260t17.5 42.5Q515-200 540-200t42.5-17.5ZM273-280h128q2-11 4.5-20.5T413-320h-90L206-440h-46v80q38 0 69 22t44 58Zm84-120h189L427-680H240v160l117 120Zm-34 80-18.5-19q-18.5-19-40-41.5t-40-41L206-440h-46 46l117 120h90-90Z" /></svg>
+                                            Nº de Cargas
+                                        </div>
+                                        <div class="fs-5 fw-bold txt-success">@cargas.Where(c => !string.IsNullOrEmpty(c.PaisCarga)).GroupBy(c => c.NombreLugarCarga).Count()</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="m720-80 120-120-28-28-72 72v-164h-40v164l-72-72-28 28L720-80ZM480-800 243-663l237 137 237-137-237-137ZM120-321v-318q0-22 10.5-40t29.5-29l280-161q10-5 19.5-8t20.5-3q11 0 21 3t19 8l280 161q19 11 29.5 29t10.5 40v159h-80v-116L479-434 200-596v274l240 139v92L160-252q-19-11-29.5-29T120-321ZM578.5-58.5Q520-117 520-200t58.5-141.5Q637-400 720-400t141.5 58.5Q920-283 920-200T861.5-58.5Q803 0 720 0T578.5-58.5ZM480-491Z" /></svg>
+                                            Nº de Descargas
+                                        </div>
+                                        <div class="fs-5 fw-bold txt-success">@cargas.Where(c => !string.IsNullOrEmpty(c.PaisDescarga)).GroupBy(c => c.NombreLugarDescarga).Count()</div>
+                                    </div>
+                                </div>
+                                <div id="europaMap" style="height: 350px; width:100%;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-            }
-            else
-            {
-                <div class="alert alert-info mt-0">
-                    Selecciona un trayecto para ver la distribución de carga.
-                </div>
-            }
+            </div>
         </div>
-    </div>
-</div>
+    }
 
-<br />
+</div>
 
 @code {
     private IJSObjectReference? _module;
@@ -385,6 +387,12 @@
         }
     }
 
+    private void VolverALista()
+    {
+        trayectoSeleccionado = null;
+        trayectosExpandidos.Clear();
+    }
+
     private void ToggleAnyo(int anyo)
     {
         if (anyosExpandidos.Contains(anyo))
@@ -443,7 +451,7 @@
         _ => mes.ToString()
     };
 
-    private double CalcularOcupacion (IEnumerable<PaletsTotales> cargas)
+    private double CalcularOcupacion(IEnumerable<PaletsTotales> cargas)
     {
         var europalet = new HashSet<string> { "H", "E", "N", "NE" };
 
@@ -468,11 +476,67 @@
         );
 
         double pct = Math.Round(ocupado * 100, 1);
-        string color = pct >= 90 ? "#dc3545" : pct >= 70 ? "#fd7e14" : "#06038D";
+        string color = pct >= 90 ? "#39B546" : pct >= 50 ? "#E66C37" : "#D64550";
+
+        var options = new
+        {
+            series = new[]
+            {
+                new
+                {
+                    type = "gauge",
+                    startAngle = 210,
+                    endAngle = -30,
+                    min = 0,
+                    max = 100,
+                    radius = "88%",
+                    center = new[] { "50%", "58%" },
+                    progress = new
+                    {
+                        show = true,
+                        width = 18,
+                        itemStyle = new { color = color }
+                    },
+                    axisLine = new
+                    {
+                        lineStyle = new
+                        {
+                            width = 18,
+                            color = new object[] { new object[] { 1, "#babcbf" } }
+                        }
+                    },
+                    pointer = new { show = false },
+                    axisTick = new { show = false },
+                    splitLine = new { show = false },
+                    axisLabel = new { show = false },
+                    detail = new
+                    {
+                        valueAnimation = true,
+                        formatter = "{value}%",
+                        color = color,
+                        fontSize = 28,
+                        fontWeight = "bold",
+                        offsetCenter = new[]{ "0%", "10%" }
+                    },
+                    title = new
+                    {
+                        show = true,
+                        offsetCenter = new[] { "0%", "40%" },
+                        fontSize = 13,
+                        color = "000000",
+                        fontWeight = "bold"
+                    },
+                    data = new[]
+                    {
+                        new { value = pct, name = "Ocupación" }
+                    }
+                }
+            }
+        };
 
         try
         {
-            await JS.InvokeVoidAsync("initOcupacionGauge", "ocupacionGauge", pct, color);
+            await JS.InvokeVoidAsync("renderEChart", "ocupacionGauge", options);
         }
         catch (JSDisconnectedException) { }
         catch (Exception ex)
@@ -500,16 +564,16 @@
 
         var datos = cargas.Select((c, i) => new
         {
-            label = $"{c.TipoPalets}_{i+1}",
+            label = $"{c.TipoPalets}_{i + 1}",
             displayLabel = $"{c.TipoPalets} ({c.NumeroPalets})",
             value = Math.Round(
                 tiposEuropalet.Contains(c.TipoPalets)
-                    ? (double) c.NumeroPalets / 33 * 100
-                    : (double) c.NumeroPalets / 26 * 100
+                    ? (double)c.NumeroPalets / 33 * 100
+                    : (double)c.NumeroPalets / 26 * 100
                 , 1)
         }).ToList<object>();
 
-        if(espacioLibre > 0)
+        if (espacioLibre > 0)
         {
             datos.Add(new
             {
@@ -550,7 +614,6 @@
                     };
                 })
                 .ToList();
-
 
             var lugaresDescarga = cargas
                 .Where(c => !string.IsNullOrEmpty(c.PaisDescarga))
@@ -600,6 +663,6 @@
         if (_mapaModule is not null)
         {
             try { await _mapaModule.DisposeAsync(); } catch { }
-    }
+        }
     }
 }
