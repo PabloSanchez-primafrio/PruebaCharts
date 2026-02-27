@@ -15,22 +15,11 @@
     </h1>
     @if (trayectoSeleccionado != null)
     {
-        var matricula = trayectos[trayectoSeleccionado.Value].First().Matricula.Replace("-", "  ");
         <div class="row mb-2">
             <div class="col-12">
-                <button class="btn" style="background-color:#06038D; color:white;" @onclick="VolverALista">
+                <button class="btn" style="background-color:#06038D; color:white; margin-right:10px;" @onclick="VolverALista">
                     Volver a la lista
                 </button>
-            </div>
-        </div>
-
-        <div style="position:relative; width:160px; height:40px; display:inline-block; margin-right: 10px">
-            <img src="/img/MatriculaRemolque.png"
-                 style="position:absolute; top:0; left:0; width: 100%; height:100%; object-fit:contain; z-index:1;" />
-            <div style="position:absolute; top:0; left:0;width:100%; height:100%;
-                display:flex; align-items:center; justify-content:center;
-                color:#000000; font-weight:bold; font-size:20px; z-index:2;">
-                @matricula
             </div>
         </div>
     }
@@ -215,11 +204,11 @@
             <div class="col-12">
                 <div class="row">
                     <div class="col-md-2">
-                        <div class="card h-100">
+                        <div class="card h-100" style="min-height: 380px;">
                             <div class="card-header">
                                 <h6 class="mb-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
-                                    Ocupación Remolque
+                                    Ocupación
                                 </h6>
                             </div>
                             <div class="card-body d-flex align-items-center justify-content-center w-100">
@@ -227,55 +216,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
-                                    Ocupación Remolque
-                                </h6>
-                            </div>
-                            <div class="card-body d-flex align-items-center justify-content-center w-100">
-                                <div id="ocupacionGauge" style="width:100%; height:240px;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z" /></svg>
-                                    Carga del trayecto <strong>@trayectoSeleccionado</strong>
-                                    - @cargas.First().FechaTrabajo.ToShortDateString()
-                                    - @cargas.Sum(p => p.NumeroPalets) palets totales
-                                </h5>
-                            </div>
-                            <div class="card-body p-0 align-content-center">
-                                <div id="truckMap" style="height:293px"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <br />
-                <div class="row">
-
-                    <div class="col-md-5">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" /></svg>
-                                    Ocupación Remolque
-                                </h6>
-                            </div>
-                            <div class="card-body d-flex align-items-center justify-content-center w-100">
-                                <div id="ocupacionGauge" style="width:100%; height:240px;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-7">
-                        <div class="card h-100">
+                    <div class="col-md-4">
+                        <div class="card h-100" style="min-height: 380px;">
                             <div class="card-header">
                                 <h6 class="mb-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-120v-80h800v80H80Zm40-120v-280h120v280H120Zm200 0v-480h120v480H320Zm200 0v-360h120v360H520Zm200 0v-600h120v600H720Z" /></svg>
@@ -287,7 +229,21 @@
                                     <div class="col">
                                         <div class="fw-semibold text-muted small">
                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
+                                            ID Trayecto
+                                        </div>
+                                        <div class="fs-5 fw-bold">@cargas.Sum(c => c.NumeroPalets)</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
                                             Palets totales
+                                        </div>
+                                        <div class="fs-5 fw-bold">@cargas.Sum(c => c.NumeroPalets)</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-semibold text-muted small">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
+                                            Fecha
                                         </div>
                                         <div class="fs-5 fw-bold">@cargas.Sum(c => c.NumeroPalets)</div>
                                     </div>
@@ -313,7 +269,140 @@
                                         <div class="fs-5 fw-bold txt-success">@cargas.Where(c => !string.IsNullOrEmpty(c.PaisDescarga)).GroupBy(c => c.NombreLugarDescarga).Count()</div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100" style="min-height: 380px;">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M307-113.5Q240-147 240-200q0-24 14.5-44.5T295-280l63 59q-9 4-19.5 9T322-200q13 16 60 28t98 12q51 0 98.5-12t60.5-28q-7-8-18-13t-21-9l62-60q28 16 43 36.5t15 45.5q0 53-67 86.5T480-80q-106 0-173-33.5ZM481-300q99-73 149-146.5T680-594q0-102-65-154t-135-52q-70 0-135 52t-65 154q0 67 49 139.5T481-300Zm-1 100Q339-304 269.5-402T200-594q0-71 25.5-124.5T291-808q40-36 90-54t99-18q49 0 99 18t90 54q40 36 65.5 89.5T760-594q0 94-69.5 192T480-200Zm0-320q33 0 56.5-23.5T560-600q0-33-23.5-56.5T480-680q-33 0-56.5 23.5T400-600q0 33 23.5 56.5T480-520Zm0-80Z" /></svg>
+                                    Cargas y Descargas
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6 border-end">
+                                        <h6 class="text-center fw-bold mb-3" style="color:#DEC000">
+                                            Carga
+                                        </h6>
+                                        @foreach (var pais in cargas
+                                                                            .Where(c => !string.IsNullOrEmpty(c.PaisCarga))
+                                                                            .GroupBy(c => c.PaisCarga)
+                                                                            .OrderByDescending(g => g.Sum(c => c.NumeroPalets)))
+                                        {
+                                            <div class="mb-3">
+                                                <div class="fw-semibold d-flex align-items-center gap-1 mb-1"
+                                                     style="color:#DEC000; font-size:0.9rem;">
+                                                    <span><strong>@pais.Key</strong></span>
+                                                </div>
+                                                @foreach (var lugar in pais
+                                                                                        .GroupBy(c => c.NombreLugarCarga)
+                                                                                        .Where(g => !string.IsNullOrEmpty(g.Key))
+                                                                                        .OrderByDescending(g => g.Sum(c => c.NumeroPalets)))
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center
+                                                                                ps-2 py-1 mb-1 rounded"
+                                                         style="background:#fffbde; font-size:0.82rem;">
+                                                        <span class="text-muted">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" height="14px"
+                                                                 viewBox="0 -960 960 960" width="14px" fill="#6B7280">
+                                                                <path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-560q0-109-69.5-174.5T480-800q-101 0-170.5 65.5T240-560q0 71 59 162.5T480-186Z" />
+                                                            </svg>
+                                                            @lugar.Key
+                                                        </span>
+                                                        <span class="badge rounded-pill ms-2"
+                                                              style="background:#DEC000; font-size:0.75rem;">
+                                                            @lugar.Sum(c => c.NumeroPalets) pal
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-6">
+                                        <h6 class="text-center fw-bold mb-3" style="color:#06038D">
+                                            Descarga
+                                        </h6>
+                                        @foreach (var pais in cargas
+                                                                            .Where(c => !string.IsNullOrEmpty(c.PaisDescarga))
+                                                                            .GroupBy(c => c.PaisDescarga)
+                                                                            .OrderByDescending(g => g.Sum(c => c.NumeroPalets)))
+                                        {
+                                            <div class="mb-3">
+                                                <div class="fw-semibold d-flex align-items-center gap-1 mb-1"
+                                                     style="color:#06038D; font-size:0.9rem;">
+                                                    <span><strong>@pais.Key</strong></span>
+                                                </div>
+                                                @foreach (var lugar in pais
+                                                                                        .GroupBy(c => c.NombreLugarDescarga)
+                                                                                        .Where(g => !string.IsNullOrEmpty(g.Key))
+                                                                                        .OrderByDescending(g => g.Sum(c => c.NumeroPalets)))
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center
+                                                                                ps-2 py-1 mb-1 rounded"
+                                                         style="background:#f0f4ff; font-size:0.82rem;">
+                                                        <span class="text-muted">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" height="14px"
+                                                                 viewBox="0 -960 960 960" width="14px" fill="#6B7280">
+                                                                <path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-560q0-109-69.5-174.5T480-800q-101 0-170.5 65.5T240-560q0 71 59 162.5T480-186Z" />
+                                                            </svg>
+                                                            @lugar.Key
+                                                        </span>
+                                                        <span class="badge rounded-pill ms-2"
+                                                              style="background:#06038D; font-size:0.75rem;">
+                                                            @lugar.Sum(c => c.NumeroPalets) pal
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <br />
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="m600-120-240-84-186 72q-20 8-37-4.5T120-170v-560q0-13 7.5-23t20.5-15l212-72 240 84 186-72q20-8 37 4.5t17 33.5v560q0 13-7.5 23T812-192l-212 72Zm-40-98v-468l-160-56v468l160 56Zm80 0 120-40v-474l-120 46v468Zm-440-10 120-46v-468l-120 40v474Zm440-458v468-468Zm-320-56v468-468Z" /></svg>
+                                    Mapa
+                                </h6>
+                            </div>
+                            <div class="card-body">
                                 <div id="europaMap" style="height: 350px; width:100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#06038D"><path d="M155-195q-35-35-35-85H40v-440q0-33 23.5-56.5T120-800h560v160h120l120 160v200h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35q-50 0-85-35Zm113.5-56.5Q280-263 280-280t-11.5-28.5Q257-320 240-320t-28.5 11.5Q200-297 200-280t11.5 28.5Q223-240 240-240t28.5-11.5ZM120-360h32q17-18 39-29t49-11q27 0 49 11t39 29h272v-360H120v360Zm628.5 108.5Q760-263 760-280t-11.5-28.5Q737-320 720-320t-28.5 11.5Q680-297 680-280t11.5 28.5Q703-240 720-240t28.5-11.5ZM680-440h170l-90-120h-80v120ZM360-540Z" /></svg>
+                                    Carga
+                                </h6>
+                            </div>
+                            <div class="card-body p-0 align-content-center">
+                                <div class="d-flex justify-content-center pt-2 pb-1">
+                                    <div style="position:relative; width:160px; height:40px; display:inline-block; margin-right: 10px;">
+                                        <img src="/img/MatriculaRemolque.png"
+                                             style="position:absolute; top:0; left:0; width: 100%; height:100%; object-fit:contain; z-index:1;" />
+                                        <div style="position:absolute; top:0; left:0;width:100%; height:100%;
+                                            display:flex; align-items:center; justify-content:center;
+                                            color:#000000; font-weight:bold; font-size:20px; z-index:2;">
+                                            @matricula
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="truckMap" style="height:293px"></div>
                             </div>
                         </div>
                     </div>
@@ -339,6 +428,7 @@
     private HashSet<string> mesesExpandidos = new();
     private HashSet<string> trayectosExpandidos = new();
 
+    private string? matricula;
     private string? nombreCliente;
     private string? filtroBusqueda;
     private DateTime? filtroFecha;
@@ -417,6 +507,7 @@
             trayectosExpandidos.Add(idTrayecto.ToString());
 
         trayectoSeleccionado = idTrayecto;
+        matricula = trayectos[trayectoSeleccionado.Value].First().Matricula.Replace("-", "  ");
         StateHasChanged();
 
         await Task.Delay(50);
@@ -432,6 +523,7 @@
 
         await RenderRemolque();
         await RenderGauge();
+        await RenderMercanciaDonut();
     }
 
     private static string NombreMes(int mes) => mes switch
@@ -476,7 +568,7 @@
         );
 
         double pct = Math.Round(ocupado * 100, 1);
-        string color = pct >= 90 ? "#39B546" : pct >= 50 ? "#E66C37" : "#D64550";
+        string color = GetInterpolatedColor(pct);
 
         var options = new
         {
@@ -543,6 +635,142 @@
         {
             Console.WriteLine($"Error gauge: {ex.Message}");
         }
+    }
+
+    protected async Task RenderMercanciaDonut()
+    {
+        if (trayectoSeleccionado == null || _disposed) return;
+
+        var cargas = trayectos[trayectoSeleccionado.Value];
+
+        var tiposEuropalet = new[] { "H", "E", "N", "NE" };
+
+        double espacioOcupado = cargas.Sum(c =>
+            tiposEuropalet.Contains(c.TipoPalets)
+                ? (double)c.NumeroPalets / 33
+                : (double)c.NumeroPalets / 26
+        );
+
+        double espacioLibre = Math.Round(Math.Max(0, 1 - espacioOcupado) * 100, 1);
+
+        var grupos = cargas
+            .GroupBy(c => c.Mercancia)
+            .Select(g => new
+            {
+                name = g.Key,
+                value = g.Sum(c => c.NumeroPalets)
+            })
+            .ToArray();
+
+        var data = grupos.Select((g, i) => new
+        {
+            name = g.name,
+            value = g.value,
+            itemStyle = new
+            {
+                borderRadius = 10,
+                borderColor = "#fff",
+                borderWidth = 3
+            }
+        }).ToArray<object>();
+
+        var options = new
+        {
+            backgroundColor = "transparent",
+            tooltip = new
+            {
+                trigger = "item",
+                formatter = "{b}: {c} palets ({d}%)"
+            },
+            legend = new
+            {
+                bottom = "2%",
+                left = "center",
+                textStyle = new { color = "#6B7280", fontSize = 11 }
+            },
+            series = new[]
+            {
+                new
+                {
+                    type = "pie",
+                    radius = new[] { "45%", "70%" },
+                    center = new[] { "50%", "45%" },
+                    avoidLabelOverlap = false,
+                    itemStyle = new
+                    {
+                        borderRadius = 10,
+                        borderColor = "#fff",
+                        borderWidth = 3
+                    },
+                    label = new { show = false, position = "center" },
+                    emphasis = new
+                    {
+                        label = new
+                        {
+                            show = true,
+                            fontSize = 18,
+                            fontWeight = "bold",
+                            formatter = "{c}\npalets"
+                        },
+                        itemStyle = new
+                        {
+                            shadowBlur = 16,
+                            shadowColor = "rgba(99,102,241,0.35)"
+                        },
+                        scale = true,
+                        scaleSize = 5
+                    },
+                    labelLine = new { show = false },
+                    data
+                }
+            }
+        };
+
+        try
+        {
+            await JS.InvokeVoidAsync("renderEChart", "mercanciaDonutChart", options);
+        }
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error mercanciaDonut: {ex.Message}");
+        }
+    }
+
+    private string GetInterpolatedColor (double pct)
+    {
+        if(pct <= 50)
+        {
+            double t = pct / 50;
+            return InterpolateColor("#D64550", "#E68F37", t);
+        }
+        else
+        {
+            double t = (pct - 50) / 50;
+            return InterpolateColor("#E68F37", "#39B546", t);
+        }
+    }
+
+    private string InterpolateColor (string hex1, string hex2, double t)
+    {
+        (int r1, int g1, int b1) = HexToRgb(hex1);
+        (int r2, int g2, int b2) = HexToRgb(hex2);
+
+        int r = (int)(r1 + (r2 - r1) * t);
+        int g = (int)(g1 + (g2 - g1) * t);
+        int b = (int)(b1 + (b2 - b1) * t);
+
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+
+    private (int r, int g, int b) HexToRgb (string hex)
+    {
+        hex = hex.Replace("#", "");
+        return (
+            Convert.ToInt32(hex.Substring(0, 2), 16),
+            Convert.ToInt32(hex.Substring(2, 2), 16),
+            Convert.ToInt32(hex.Substring(4, 2), 16)
+        );
     }
 
     protected async Task RenderRemolque()
