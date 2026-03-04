@@ -1,0 +1,275 @@
+﻿@page "/resumen"
+
+<PageTitle>Resumen Cliente</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 style="color:#06038D">
+        <strong>
+            <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -900 960 960" width="40px" fill="#06038D">
+                <path d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z" />
+            </svg>
+            Resumen - @nombreCliente
+        </strong>
+    </h1>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body py-3">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+
+            <div class="d-flex align-items-center gap-2 me-2">
+                <span class="fw-semibold small" style="color:#06038D">Filtrar por:</span>
+                <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm @(modoFiltro == ModoFiltro.MesAnio ? "btn-primary" : "btn-outline-primary")"
+                            style="@(modoFiltro == ModoFiltro.MesAnio ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
+                            @onclick="() => SetModoFiltro(ModoFiltro.MesAnio)">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -900 960 960" width="16px" fill="currentColor">
+                            <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
+                        </svg>
+                        Mes / Año
+                    </button>
+                    <button type="button"
+                            class="btn btn-sm @(modoFiltro == ModoFiltro.Rango ? "btn-primary" : "btn-outline-primary")"
+                            style="@(modoFiltro == ModoFiltro.Rango ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
+                            @onclick="() => SetModoFiltro(ModoFiltro.Rango)">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -780 960 960" width="16px" fill="currentColor">
+                            <path d="M120-160v-80h240v-160H120v-80h240q33 0 56.5 23.5T440-400v40h80v-40q0-33 23.5-56.5T600-480h240v80H600v160h240v80H600q-33 0-56.5-23.5T520-240v-40h-80v40q0 33-23.5 56.5T360-160H120Z" />
+                        </svg>
+                        Rango de fechas
+                    </button>
+                </div>
+            </div>
+
+            <div class="vr mx-1" style="height:36px;"></div>
+
+            @if (modoFiltro == ModoFiltro.MesAnio)
+            {
+                <div class="dropdown" @onclick:stopPropagation>
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                            type="button"
+                            @onclick="ToggleDropdownAnios"
+                            style="border-color:#dee2e6; min-width:140px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
+                            <path d="M216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.15Q816-725.7 816-696v528q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm0-72h528v-360H216v360Z" />
+                        </svg>
+                        @TextoBotonAnios
+                        @if (aniosSeleccionados.Any())
+                        {
+                            <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@aniosSeleccionados.Count</span>
+                        }
+                    </button>
+                    @if (dropdownAniosAbierto)
+                    {
+                        <div class="dropdown-menu show shadow p-2" style="min-width:160px; z-index:1050;">
+                            <div class="px-2 pb-1 mb-1 border-bottom">
+                                <small class="text-muted fw-semibold">Años</small>
+                            </div>
+                            @foreach (var anio in aniosDisponibles)
+                            {
+                                <div class="form-check px-3 py-1">
+                                    <input class="form-check-input" type="checkbox"
+                                           id="anio-@anio"
+                                           checked="@aniosSeleccionados.Contains(anio)"
+                                           @onchange="e => ToggleAnio(anio, (bool)e.Value!)" />
+                                    <label class="form-check-label" for="anio-@anio">@anio</label>
+                                </div>
+                            }
+                            <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="SeleccionarTodosAnios">Todos</button>
+                                <span class="text-muted" style="font-size:11px;">|</span>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="LimpiarAnios">Ninguno</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="dropdown" @onclick:stopPropagation>
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                            type="button"
+                            @onclick="ToggleDropdownMeses"
+                            style="border-color:#dee2e6; min-width:150px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
+                            <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
+                        </svg>
+                        @TextoBotonMeses
+                        @if (mesesSeleccionados.Any())
+                        {
+                            <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@mesesSeleccionados.Count</span>
+                        }
+                    </button>
+                    @if (dropdownMesesAbierto)
+                    {
+                        <div class="dropdown-menu show shadow p-2" style="min-width:170px; z-index:1050;">
+                            <div class="px-2 pb-1 mb-1 border-bottom">
+                                <small class="text-muted fw-semibold">Meses</small>
+                            </div>
+                            @foreach (var mes in nombresMeses)
+                            {
+                                var numMes = nombresMeses.IndexOf(mes) + 1;
+                                <div class="form-check px-3 py-1">
+                                    <input class="form-check-input" type="checkbox"
+                                           id="mes-@numMes"
+                                           checked="@mesesSeleccionados.Contains(numMes)"
+                                           @onchange="e => ToggleMes(numMes, (bool)e.Value!)" />
+                                    <label class="form-check-label" for="mes-@numMes">@mes</label>
+                                </div>
+                            }
+                            <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="SeleccionarTodosMeses">Todos</button>
+                                <span class="text-muted" style="font-size:11px;">|</span>
+                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="LimpiarMeses">Ninguno</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="form-label mb-0 small fw-semibold text-muted">Desde</label>
+                        <input type="date" class="form-control form-control-sm"
+                               style="width:150px; border-color:#dee2e6;"
+                               value="@fechaDesde?.ToString("yyyy-MM-dd")"
+                               max="@fechaHasta?.ToString("yyyy-MM-dd")"
+                               @onchange="e => OnFechaDesdeChanged(e)" />
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="form-label mb-0 small fw-semibold text-muted">Hasta</label>
+                        <input type="date" class="form-control form-control-sm"
+                               style="width:150px; border-color:#dee2e6;"
+                               value="@fechaHasta?.ToString("yyyy-MM-dd")"
+                               min="@fechaDesde?.ToString("yyyy-MM-dd")"
+                               @onchange="e => OnFechaHastaChanged(e)" />
+                    </div>
+                    @if (fechaDesde.HasValue || fechaHasta.HasValue)
+                    {
+                        <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" @onclick="LimpiarRango">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
+                                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                            </svg>
+                        </button>
+                    }
+                </div>
+            }
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <button class="btn btn-sm text-white"
+                        style="background-color:#06038D;"
+                        @onclick="AplicarFiltros">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="white">
+                        <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22T792-736L560-440v240q0 17-11.5 28.5T520-160h-80Z" />
+                    </svg>
+                    Aplicar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? nombreCliente;
+    
+    private ModoFiltro modoFiltro = ModoFiltro.MesAnio;
+
+    private enum ModoFiltro { MesAnio, Rango }
+
+    private bool dropdownAniosAbierto = false;
+    private bool dropdownMesesAbierto = false;
+
+    private List<int> aniosDisponibles = Enumerable.Range(DateTime.Now.Year - 4, 5).Reverse().ToList();
+    private HashSet<int> aniosSeleccionados = new();
+    private HashSet<int> mesesSeleccionados = new();
+
+    private List<string> nombresMeses = new()
+    {
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    };
+
+    private DateTime? fechaDesde;
+    private DateTime? fechaHasta;
+
+    private string TextoBotonAnios => aniosSeleccionados.Count == 0
+        ? "Todos los años"
+        : aniosSeleccionados.Count == 1
+            ? aniosSeleccionados.First().ToString()
+            : $"{aniosSeleccionados.Count} años";
+
+    private string TextoBotonMeses => mesesSeleccionados.Count == 0
+        ? "Todos los meses"
+        : mesesSeleccionados.Count == 1
+            ? nombresMeses[mesesSeleccionados.First() - 1]
+            : $"{mesesSeleccionados.Count} meses";
+
+    private bool HayFiltrosActivos =>
+        modoFiltro == ModoFiltro.MesAnio
+            ? aniosSeleccionados.Any() || mesesSeleccionados.Any()
+            : fechaDesde.HasValue || fechaHasta.HasValue;
+
+    private void ToggleDropdownAnios()
+    {
+        dropdownAniosAbierto = !dropdownAniosAbierto;
+        dropdownMesesAbierto = false;
+    }
+
+    private void ToggleDropdownMeses()
+    {
+        dropdownMesesAbierto = !dropdownMesesAbierto;
+        dropdownAniosAbierto = false;
+    }
+
+    private void ToggleAnio(int anio, bool seleccionado)
+    {
+        if (seleccionado) aniosSeleccionados.Add(anio);
+        else aniosSeleccionados.Remove(anio);
+    }
+
+    private void ToggleMes(int mes, bool seleccionado)
+    {
+        if (seleccionado) mesesSeleccionados.Add(mes);
+        else mesesSeleccionados.Remove(mes);
+    }
+
+    private void SeleccionarTodosAnios() => aniosSeleccionados = aniosDisponibles.ToHashSet();
+    private void LimpiarAnios() => aniosSeleccionados.Clear();
+    private void SeleccionarTodosMeses() => mesesSeleccionados = Enumerable.Range(1, 12).ToHashSet();
+    private void LimpiarMeses() => mesesSeleccionados.Clear();
+
+    private void OnFechaDesdeChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var fecha))
+            fechaDesde = fecha;
+        else
+            fechaDesde = null;
+    }
+
+    private void OnFechaHastaChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var fecha))
+            fechaHasta = fecha;
+        else
+            fechaHasta = null;
+    }
+
+    private void LimpiarRango()
+    {
+        fechaDesde = null;
+        fechaHasta = null;
+    }
+
+    private void SetModoFiltro(ModoFiltro modo)
+    {
+        modoFiltro = modo;
+        dropdownAniosAbierto = false;
+        dropdownMesesAbierto = false;
+    }
+
+    private void AplicarFiltros()
+    {
+        dropdownAniosAbierto = false;
+        dropdownMesesAbierto = false;
+    }
+}

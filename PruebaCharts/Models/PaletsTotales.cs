@@ -14,6 +14,8 @@
         public float LatitudLugarDescarga { get; set; }
         public float LongitudLugarDescarga { get; set; }
         public DateTime FechaTrabajo { get; set; }
+        public DateTime? FechaCargado { get; set; }
+        public DateTime? FechaDescargado { get; set; }
         public string? TipoPalets { get; set; }
         public int Trayecto { get; set; }
         public string? Mercancia { get; set; }

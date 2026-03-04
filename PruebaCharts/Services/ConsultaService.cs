@@ -70,7 +70,7 @@ public class ConsultaService
     public async Task<List<PaletsTotales>> GetCarga(int id)
     {
         const string sql = @"
-            SELECT G.Cliente Cliente, COALESCE(NULLIF(C.MEntrega, ''), 'SIN ASIGNAR') Matricula, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets, COALESCE(NULLIF(T.KmTotal, ''), 0) KmTotal
+            SELECT G.Cliente Cliente, COALESCE(NULLIF(C.MEntrega, ''), 'SIN ASIGNAR') Matricula, L.Nombre NombreCliente, P.Pais PaisCarga, U.NombreFirma NombreLugarCarga, U.Latitud LatitudLugarCarga, U.Longitud LongitudLugarCarga, PD.Pais PaisDescarga, UD.NombreFirma NombreLugarDescarga, UD.Latitud LatitudLugarDescarga, UD.Longitud LongitudLugarDescarga, G.FechaTrabajo FechaTrabajo, G.FechaCargado FechaCargado, G.FechaDescargado FechaDescargado, G.TipoPalets TipoPalets, C.NTrayecto1 Trayecto, COALESCE(NULLIF(G.Mercancia, ''), 'SIN ASIGNAR') Mercancia, G.Palets NumeroPalets, COALESCE(NULLIF(T.KmTotal, ''), 0) KmTotal
             FROM GRUPAJES_CABECERA C JOIN GRUPAJES G
                                         ON C.FechaTrabajo = G.FechaTrabajo
                                         AND C.Departamento = G.Departamento
