@@ -1,8 +1,11 @@
 ﻿@page "/resumen"
 
+@inject IJSRuntime JS
+@inject ConsultaService ConsultaService
+
 <PageTitle>Resumen Cliente</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center">
     <h1 style="color:#06038D">
         <strong>
             <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -900 960 960" width="40px" fill="#06038D">
@@ -11,175 +14,338 @@
             Resumen - @nombreCliente
         </strong>
     </h1>
-</div>
+    <div class="card" style="margin-bottom:10px;">
+        <div class="card-body py-1">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
 
-<div class="card mb-4 shadow-sm">
-    <div class="card-body py-3">
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-
-            <div class="d-flex align-items-center gap-2 me-2">
-                <span class="fw-semibold small" style="color:#06038D">Filtrar por:</span>
-                <div class="btn-group" role="group">
-                    <button type="button"
-                            class="btn btn-sm @(modoFiltro == ModoFiltro.MesAnio ? "btn-primary" : "btn-outline-primary")"
-                            style="@(modoFiltro == ModoFiltro.MesAnio ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
-                            @onclick="() => SetModoFiltro(ModoFiltro.MesAnio)">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -900 960 960" width="16px" fill="currentColor">
-                            <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
-                        </svg>
-                        Mes / Año
-                    </button>
-                    <button type="button"
-                            class="btn btn-sm @(modoFiltro == ModoFiltro.Rango ? "btn-primary" : "btn-outline-primary")"
-                            style="@(modoFiltro == ModoFiltro.Rango ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
-                            @onclick="() => SetModoFiltro(ModoFiltro.Rango)">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -780 960 960" width="16px" fill="currentColor">
-                            <path d="M120-160v-80h240v-160H120v-80h240q33 0 56.5 23.5T440-400v40h80v-40q0-33 23.5-56.5T600-480h240v80H600v160h240v80H600q-33 0-56.5-23.5T520-240v-40h-80v40q0 33-23.5 56.5T360-160H120Z" />
-                        </svg>
-                        Rango de fechas
-                    </button>
-                </div>
-            </div>
-
-            <div class="vr mx-1" style="height:36px;"></div>
-
-            @if (modoFiltro == ModoFiltro.MesAnio)
-            {
-                <div class="dropdown" @onclick:stopPropagation>
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
-                            type="button"
-                            @onclick="ToggleDropdownAnios"
-                            style="border-color:#dee2e6; min-width:140px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
-                            <path d="M216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.15Q816-725.7 816-696v528q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm0-72h528v-360H216v360Z" />
-                        </svg>
-                        @TextoBotonAnios
-                        @if (aniosSeleccionados.Any())
-                        {
-                            <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@aniosSeleccionados.Count</span>
-                        }
-                    </button>
-                    @if (dropdownAniosAbierto)
-                    {
-                        <div class="dropdown-menu show shadow p-2" style="min-width:160px; z-index:1050;">
-                            <div class="px-2 pb-1 mb-1 border-bottom">
-                                <small class="text-muted fw-semibold">Años</small>
-                            </div>
-                            @foreach (var anio in aniosDisponibles)
-                            {
-                                <div class="form-check px-3 py-1">
-                                    <input class="form-check-input" type="checkbox"
-                                           id="anio-@anio"
-                                           checked="@aniosSeleccionados.Contains(anio)"
-                                           @onchange="e => ToggleAnio(anio, (bool)e.Value!)" />
-                                    <label class="form-check-label" for="anio-@anio">@anio</label>
-                                </div>
-                            }
-                            <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
-                                <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="SeleccionarTodosAnios">Todos</button>
-                                <span class="text-muted" style="font-size:11px;">|</span>
-                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="LimpiarAnios">Ninguno</button>
-                            </div>
-                        </div>
-                    }
-                </div>
-
-                <div class="dropdown" @onclick:stopPropagation>
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
-                            type="button"
-                            @onclick="ToggleDropdownMeses"
-                            style="border-color:#dee2e6; min-width:150px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
-                            <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
-                        </svg>
-                        @TextoBotonMeses
-                        @if (mesesSeleccionados.Any())
-                        {
-                            <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@mesesSeleccionados.Count</span>
-                        }
-                    </button>
-                    @if (dropdownMesesAbierto)
-                    {
-                        <div class="dropdown-menu show shadow p-2" style="min-width:170px; z-index:1050;">
-                            <div class="px-2 pb-1 mb-1 border-bottom">
-                                <small class="text-muted fw-semibold">Meses</small>
-                            </div>
-                            @foreach (var mes in nombresMeses)
-                            {
-                                var numMes = nombresMeses.IndexOf(mes) + 1;
-                                <div class="form-check px-3 py-1">
-                                    <input class="form-check-input" type="checkbox"
-                                           id="mes-@numMes"
-                                           checked="@mesesSeleccionados.Contains(numMes)"
-                                           @onchange="e => ToggleMes(numMes, (bool)e.Value!)" />
-                                    <label class="form-check-label" for="mes-@numMes">@mes</label>
-                                </div>
-                            }
-                            <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
-                                <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="SeleccionarTodosMeses">Todos</button>
-                                <span class="text-muted" style="font-size:11px;">|</span>
-                                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="LimpiarMeses">Ninguno</button>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <div class="d-flex align-items-center gap-1">
-                        <label class="form-label mb-0 small fw-semibold text-muted">Desde</label>
-                        <input type="date" class="form-control form-control-sm"
-                               style="width:150px; border-color:#dee2e6;"
-                               value="@fechaDesde?.ToString("yyyy-MM-dd")"
-                               max="@fechaHasta?.ToString("yyyy-MM-dd")"
-                               @onchange="e => OnFechaDesdeChanged(e)" />
-                    </div>
-                    <div class="d-flex align-items-center gap-1">
-                        <label class="form-label mb-0 small fw-semibold text-muted">Hasta</label>
-                        <input type="date" class="form-control form-control-sm"
-                               style="width:150px; border-color:#dee2e6;"
-                               value="@fechaHasta?.ToString("yyyy-MM-dd")"
-                               min="@fechaDesde?.ToString("yyyy-MM-dd")"
-                               @onchange="e => OnFechaHastaChanged(e)" />
-                    </div>
-                    @if (fechaDesde.HasValue || fechaHasta.HasValue)
-                    {
-                        <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" @onclick="LimpiarRango">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
-                                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold small" style="color:#06038D">Filtrar por:</span>
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-sm @(modoFiltro == ModoFiltro.MesAnio ? "btn-primary" : "btn-outline-primary")"
+                                style="@(modoFiltro == ModoFiltro.MesAnio ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
+                                @onclick="async () => await SetModoFiltro(ModoFiltro.MesAnio)">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -900 960 960" width="16px" fill="currentColor">
+                                <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
                             </svg>
+                            Mes / Año
                         </button>
-                    }
+                        <button type="button"
+                                class="btn btn-sm @(modoFiltro == ModoFiltro.Rango ? "btn-primary" : "btn-outline-primary")"
+                                style="@(modoFiltro == ModoFiltro.Rango ? "background-color:#06038D; border-color:#06038D;" : "color:#06038D; border-color:#06038D;")"
+                                @onclick="async () => await SetModoFiltro(ModoFiltro.Rango)">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -780 960 960" width="16px" fill="currentColor">
+                                <path d="M120-160v-80h240v-160H120v-80h240q33 0 56.5 23.5T440-400v40h80v-40q0-33 23.5-56.5T600-480h240v80H600v160h240v80H600q-33 0-56.5-23.5T520-240v-40h-80v40q0 33-23.5 56.5T360-160H120Z" />
+                            </svg>
+                            Rango de fechas
+                        </button>
+                    </div>
                 </div>
-            }
 
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <button class="btn btn-sm text-white"
-                        style="background-color:#06038D;"
-                        @onclick="AplicarFiltros">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="white">
-                        <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22T792-736L560-440v240q0 17-11.5 28.5T520-160h-80Z" />
-                    </svg>
-                    Aplicar
-                </button>
+                <div class="vr mx-1" style="height:36px;"></div>
+
+                @if (modoFiltro == ModoFiltro.MesAnio)
+                {
+                    <div class="dropdown" @onclick:stopPropagation>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                                type="button"
+                                @onclick="ToggleDropdownAnios"
+                                style="border-color:#dee2e6; min-width:140px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
+                                <path d="M216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.15Q816-725.7 816-696v528q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm0-72h528v-360H216v360Z" />
+                            </svg>
+                            @TextoBotonAnios
+                            @if (aniosSeleccionados.Any())
+                            {
+                                <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@aniosSeleccionados.Count</span>
+                            }
+                        </button>
+                        @if (dropdownAniosAbierto)
+                        {
+                            <div class="dropdown-menu show shadow p-2" style="min-width:160px; z-index:1050;">
+                                <div class="px-2 pb-1 mb-1 border-bottom">
+                                    <small class="text-muted fw-semibold">Años</small>
+                                </div>
+                                @if (aniosDisponibles is null)
+                                {
+                                    <div class="px-3 py-2 text-muted small">Cargando...</div>
+                                }
+                                else if (!aniosDisponibles.Any())
+                                {
+                                    <div class="px-3 py-2 text-muted small">Sin datos</div>
+                                }
+                                else
+                                {
+                                    @foreach (var anio in aniosDisponibles)
+                                    {
+                                        <div class="form-check mx-2 py-1">
+                                            <input class="form-check-input" type="checkbox"
+                                                   id="anio-@anio"
+                                                   checked="@aniosSeleccionados.Contains(anio)"
+                                                   @onchange="async e => await ToggleAnio(anio, (bool)e.Value!)" />
+                                            <label class="form-check-label" for="anio-@anio">@anio</label>
+                                        </div>
+                                    }
+                                    <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="async () => await SeleccionarTodosAnios()">Todos</button>
+                                        <span class="text-muted" style="font-size:11px;">|</span>
+                                        <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="async () => await LimpiarAnios()">Ninguno</button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="dropdown" @onclick:stopPropagation>
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1"
+                                type="button"
+                                @onclick="ToggleDropdownMeses"
+                                style="border-color:#dee2e6; min-width:150px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#06038D">
+                                <path d="M580-240q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Z" />
+                            </svg>
+                            @TextoBotonMeses
+                            @if (mesesSeleccionados.Any())
+                            {
+                                <span class="badge rounded-pill ms-1" style="background-color:#06038D; font-size:10px;">@mesesSeleccionados.Count</span>
+                            }
+                        </button>
+                        @if (dropdownMesesAbierto)
+                        {
+                            <div class="dropdown-menu show shadow p-2" style="min-width:170px; z-index:1050;">
+                                <div class="px-2 pb-1 mb-1 border-bottom">
+                                    <small class="text-muted fw-semibold">Meses</small>
+                                </div>
+                                @foreach (var mes in nombresMeses)
+                                {
+                                    var numMes = nombresMeses.IndexOf(mes) + 1;
+                                    <div class="form-check mx-2 py-1">
+                                        <input class="form-check-input" type="checkbox"
+                                               id="mes-@numMes"
+                                               checked="@mesesSeleccionados.Contains(numMes)"
+                                               @onchange="async e => await ToggleMes(numMes, (bool)e.Value!)" />
+                                        <label class="form-check-label" for="mes-@numMes">@mes</label>
+                                    </div>
+                                }
+                                <div class="border-top mt-1 pt-1 px-2 d-flex gap-1">
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none" style="color:#06038D; font-size:11px;" @onclick="async () => await SeleccionarTodosMeses()">Todos</button>
+                                    <span class="text-muted" style="font-size:11px;">|</span>
+                                    <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted" style="font-size:11px;" @onclick="async () => await LimpiarMeses()">Ninguno</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <div class="d-flex align-items-center gap-1">
+                            <label class="form-label mb-0 small fw-semibold text-muted">Desde</label>
+                            <input type="date" class="form-control form-control-sm"
+                                   style="width:150px; border-color:#dee2e6;"
+                                   value="@fechaDesde?.ToString("yyyy-MM-dd")"
+                                   max="@fechaHasta?.ToString("yyyy-MM-dd")"
+                                   @onchange="async e => await OnFechaDesdeChanged(e)" />
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <label class="form-label mb-0 small fw-semibold text-muted">Hasta</label>
+                            <input type="date" class="form-control form-control-sm"
+                                   style="width:150px; border-color:#dee2e6;"
+                                   value="@fechaHasta?.ToString("yyyy-MM-dd")"
+                                   min="@fechaDesde?.ToString("yyyy-MM-dd")"
+                                   @onchange="async e => await OnFechaHastaChanged(e)" />
+                        </div>
+                        @if (fechaDesde.HasValue || fechaHasta.HasValue)
+                        {
+                            <button class="btn btn-sm btn-link text-muted p-0 text-decoration-none" @onclick="async () => await LimpiarRango()">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="currentColor">
+                                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                                </svg>
+                            </button>
+                        }
+                    </div>
+                }
+
             </div>
-
         </div>
     </div>
 </div>
 
+<div class="row g-2 mb-3">
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M160-120q-50 0-85-35t-35-85q0-26 10-49.5T80-330v-190h80v-240h320l188 443q6 14 9 28t3 29q0 58-41 99t-99 41q-41 0-75.5-21.5T413-200H273q-13 36-44 58t-69 22Zm560-40v-640h80v560h120v80H720Zm-531.5-51.5Q200-223 200-240t-11.5-28.5Q177-280 160-280t-28.5 11.5Q120-257 120-240t11.5 28.5Q143-200 160-200t28.5-11.5Zm394-6Q600-235 600-260t-17.5-42.5Q565-320 540-320t-42.5 17.5Q480-285 480-260t17.5 42.5Q515-200 540-200t42.5-17.5ZM273-280h128q2-11 4.5-20.5T413-320h-90L206-440h-46v80q38 0 69 22t44 58Zm84-120h189L427-680H240v160l117 120Zm-34 80-18.5-19q-18.5-19-40-41.5t-40-41L206-440h-46 46l117 120h90-90Z" /></svg>
+                <span class="text-white fw-semibold"><strong> Nº Cargas</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiCargas.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="m720-80 120-120-28-28-72 72v-164h-40v164l-72-72-28 28L720-80ZM480-800 243-663l237 137 237-137-237-137ZM120-321v-318q0-22 10.5-40t29.5-29l280-161q10-5 19.5-8t20.5-3q11 0 21 3t19 8l280 161q19 11 29.5 29t10.5 40v159h-80v-116L479-434 200-596v274l240 139v92L160-252q-19-11-29.5-29T120-321ZM578.5-58.5Q520-117 520-200t58.5-141.5Q637-400 720-400t141.5 58.5Q920-283 920-200T861.5-58.5Q803 0 720 0T578.5-58.5ZM480-491Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Nº Descargas</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiDescargas.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M307-113.5Q240-147 240-200q0-24 14.5-44.5T295-280l63 59q-9 4-19.5 9T322-200q13 16 60 28t98 12q51 0 98.5-12t60.5-28q-7-8-18-13t-21-9l62-60q28 16 43 36.5t15 45.5q0 53-67 86.5T480-80q-106 0-173-33.5ZM481-300q99-73 149-146.5T680-594q0-102-65-154t-135-52q-70 0-135 52t-65 154q0 67 49 139.5T481-300Zm-1 100Q339-304 269.5-402T200-594q0-71 25.5-124.5T291-808q40-36 90-54t99-18q49 0 99 18t90 54q40 36 65.5 89.5T760-594q0 94-69.5 192T480-200Zm0-320q33 0 56.5-23.5T560-600q0-33-23.5-56.5T480-680q-33 0-56.5 23.5T400-600q0 33 23.5 56.5T480-520Zm0-80Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Nº Viajes</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiViajes.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Nº Palets</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiPalets.ToString("N0") Palets</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M440-200h80v-40h40q17 0 28.5-11.5T600-280v-120q0-17-11.5-28.5T560-440H440v-40h160v-80h-80v-40h-80v40h-40q-17 0-28.5 11.5T360-520v120q0 17 11.5 28.5T400-360h120v40H360v80h80v40ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T720-80H240Zm280-560v-160H240v640h480v-480H520ZM240-800v160-160 640-640Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Facturación</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiFacturacion.ToString("N0") €</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden" style="text-align:center;">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M247-167q-47-47-47-113v-327q-35-13-57.5-43.5T120-720q0-50 35-85t85-35q50 0 85 35t35 85q0 39-22.5 69.5T280-607v327q0 33 23.5 56.5T360-200q33 0 56.5-23.5T440-280v-400q0-66 47-113t113-47q66 0 113 47t47 113v327q35 13 57.5 43.5T840-240q0 50-35 85t-85 35q-50 0-85-35t-35-85q0-39 22.5-70t57.5-43v-327q0-33-23.5-56.5T600-760q-33 0-56.5 23.5T520-680v400q0 66-47 113t-113 47q-66 0-113-47Zm-7-513q17 0 28.5-11.5T280-720q0-17-11.5-28.5T240-760q-17 0-28.5 11.5T200-720q0 17 11.5 28.5T240-680Zm480 480q17 0 28.5-11.5T760-240q0-17-11.5-28.5T720-280q-17 0-28.5 11.5T680-240q0 17 11.5 28.5T720-200ZM240-720Zm480 480Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Kilómetros</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiKmTotal.ToString("N0") Km</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M80-80v-160h800v160H760v-80H540v80H420v-80H200v80H80Zm160-240q-17 0-28.5-11.5T200-360v-480q0-17 11.5-28.5T240-880h480q17 0 28.5 11.5T760-840v480q0 17-11.5 28.5T720-320H240Zm40-80h400v-400H280v400Zm80-240h240v-80H360v80Zm-80 240v-400 400Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Gráfica de Viajes</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiPalets.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M200-120q-33 0-56.5-23.5T120-200v-640h80v640h640v80H200Zm40-120v-360h160v360H240Zm200 0v-560h160v560H440Zm200 0v-200h160v200H640Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Gráfica de Facturación</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiFacturacion.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M247-167q-47-47-47-113v-327q-35-13-57.5-43.5T120-720q0-50 35-85t85-35q50 0 85 35t35 85q0 39-22.5 69.5T280-607v327q0 33 23.5 56.5T360-200q33 0 56.5-23.5T440-280v-400q0-66 47-113t113-47q66 0 113 47t47 113v327q35 13 57.5 43.5T840-240q0 50-35 85t-85 35q-50 0-85-35t-35-85q0-39 22.5-70t57.5-43v-327q0-33-23.5-56.5T600-760q-33 0-56.5 23.5T520-680v400q0 66-47 113t-113 47q-66 0-113-47Zm-7-513q17 0 28.5-11.5T280-720q0-17-11.5-28.5T240-760q-17 0-28.5 11.5T200-720q0 17 11.5 28.5T240-680Zm480 480q17 0 28.5-11.5T760-240q0-17-11.5-28.5T720-280q-17 0-28.5 11.5T680-240q0 17 11.5 28.5T720-200ZM240-720Zm480 480Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Gráfica de Palets Transportados</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiKmTotal.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-4 col-lg-2">
+        <div class="card h-100 border-1 shadow-sm">
+            <div class="card-header" style="background-color:#06038D; color:white;">
+                <h6 class="mb-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white">
+                        <path d="M295-119q-36-1-68.5-18.5T165-189q-40-48-62.5-114.5T80-440q0-83 31.5-156T197-723q54-54 127-85.5T480-840q83 0 156 32t127 87q54 55 85.5 129T880-433q0 77-25 144t-71 113q-28 28-59 42.5T662-119q-18 0-36-4.5T590-137l-56-28q-12-6-25.5-9t-28.5-3q-15 0-28.5 3t-25.5 9l-56 28q-19 10-37.5 14.5T295-119Zm2-80q9 0 18.5-2t18.5-7l56-28q21-11 43.5-16t45.5-5q23 0 46 5t44 16l57 28q9 5 18 7t18 2q19 0 36-10t34-30q32-38 50-91t18-109q0-134-93-227.5T480-760q-134 0-227 94t-93 228q0 57 18.5 111t51.5 91q17 20 33 28.5t34 8.5Zm183-281Zm56.5 96.5Q560-407 560-440q0-8-1.5-16t-4.5-16l50-67q10 13 17.5 27.5T634-480h82q-15-88-81.5-144T480-680q-88 0-155 56.5T244-480h82q14-54 57-87t97-33q17 0 32 3t29 9l-51 69q-2 0-5-.5t-5-.5q-33 0-56.5 23.5T400-440q0 33 23.5 56.5T480-360q33 0 56.5-23.5Z" />
+                    </svg>
+                    <strong>Ocupación</strong>
+                </h6>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center p-2">
+                @if (cargando)
+                {
+                    <div class="text-muted small py-4">Cargando...</div>
+                }
+                else
+                {
+                    <div id="gaugeOcupacion" style="width:100%; height:250px;"></div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Top Paises Carga</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiKmTotal.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card h-100 border-1 shadow-sm overflow-hidden">
+            <div class="card-header" style="background-color:#06038D;">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -900 960 960" width="20px" fill="white"><path d="M440-40v-80q-125-14-214.5-103.5T122-438H42v-80h80q14-125 103.5-214.5T440-836v-80h80v80q125 14 214.5 103.5T838-518h80v80h-80q-14 125-103.5 214.5T520-120v80h-80Zm238-240q82-82 82-198t-82-198q-82-82-198-82t-198 82q-82 82-82 198t82 198q82 82 198 82t198-82Z" /></svg>
+                <span class="text-white fw-semibold"><strong>Top Paises Descarga</strong></span>
+            </div>
+            <div class="card-body px-3 py-2">
+                <div class="fs-4 fw-bold" style="color:#06038D;">@kpiKmTotal.ToString("N0")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @code {
     private string? nombreCliente;
-    
-    private ModoFiltro modoFiltro = ModoFiltro.MesAnio;
+    private int clienteId = 212;
+    private List<PaletsTotales>? todosLosDatos;
 
+    private double mediaOcupacion = 0;
+    private double kpiKmTotal = 0;
+    private int kpiCargas = 0;
+    private int kpiDescargas = 0;
+    private int kpiViajes = 0;
+    private int kpiPalets = 0;
+    private decimal kpiFacturacion = 0;
+    private bool cargando = true;
+    private bool _disposed = false;
+
+    private ModoFiltro modoFiltro = ModoFiltro.MesAnio;
     private enum ModoFiltro { MesAnio, Rango }
 
     private bool dropdownAniosAbierto = false;
     private bool dropdownMesesAbierto = false;
 
-    private List<int> aniosDisponibles = Enumerable.Range(DateTime.Now.Year - 4, 5).Reverse().ToList();
+    private List<int>? aniosDisponibles = null;
     private HashSet<int> aniosSeleccionados = new();
     private HashSet<int> mesesSeleccionados = new();
 
@@ -191,6 +357,88 @@
 
     private DateTime? fechaDesde;
     private DateTime? fechaHasta;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+        await RenderizarGauge();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            todosLosDatos = await ConsultaService.GetCarga(clienteId);
+            nombreCliente = todosLosDatos.First().NombreCliente;
+            aniosDisponibles = todosLosDatos
+                .Select(d => d.FechaTrabajo.Year)
+                .Distinct()
+                .OrderByDescending(a => a)
+                .ToList();
+
+            CalcularKpis(todosLosDatos);
+            cargando = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando datos: {ex.Message}");
+            aniosDisponibles = new List<int>();
+            cargando = false;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private void CalcularKpis(IEnumerable<PaletsTotales> datos)
+    {
+        var europalet = new HashSet<string> { "H", "E", "N", "NE" };
+
+        kpiViajes = datos.Select(d => d.Trayecto).Distinct().Count();
+        kpiCargas = datos.Where(d => !string.IsNullOrEmpty(d.PaisCarga)).GroupBy(d => d.NombreLugarCarga).Count();
+        kpiDescargas = datos.Where(d => !string.IsNullOrEmpty(d.PaisDescarga)).GroupBy(d => d.NombreLugarDescarga).Count();
+        kpiPalets = datos.Sum(d => d.NumeroPalets);
+        kpiKmTotal = datos.GroupBy(d => d.Trayecto).Sum(g => (double) g.First().KmTotal);
+
+        var ocupacionesPorViaje = datos
+            .GroupBy(d => d.Trayecto)
+            .Select(g =>
+            {
+                double capacidad = europalet.Contains(g.First().TipoPalets) ? 33.0 : 26.0;
+                double paletsTotales = g.Sum(d => (double)d.NumeroPalets);
+                return capacidad > 0 ? paletsTotales / capacidad * 100 : 0.0;
+            })
+            .ToList();
+
+        mediaOcupacion = ocupacionesPorViaje.Any()
+            ? Math.Round(ocupacionesPorViaje.Average(), 1)
+            : 0;
+    }
+
+    private IEnumerable<PaletsTotales> AplicarFiltrosDatos()
+    {
+        if (todosLosDatos is null) return Enumerable.Empty<PaletsTotales>();
+
+        var resultado = todosLosDatos.AsEnumerable();
+
+        if (modoFiltro == ModoFiltro.MesAnio)
+        {
+            if (aniosSeleccionados.Any())
+                resultado = resultado.Where(d => aniosSeleccionados.Contains(d.FechaTrabajo.Year));
+            if (mesesSeleccionados.Any())
+                resultado = resultado.Where(d => mesesSeleccionados.Contains(d.FechaTrabajo.Month));
+        }
+        else
+        {
+            if (fechaDesde.HasValue)
+                resultado = resultado.Where(d => d.FechaTrabajo >= fechaDesde.Value);
+            if (fechaHasta.HasValue)
+                resultado = resultado.Where(d => d.FechaTrabajo <= fechaHasta.Value);
+        }
+
+        return resultado;
+    }
 
     private string TextoBotonAnios => aniosSeleccionados.Count == 0
         ? "Todos los años"
@@ -221,55 +469,167 @@
         dropdownAniosAbierto = false;
     }
 
-    private void ToggleAnio(int anio, bool seleccionado)
+    private async Task ToggleAnio(int anio, bool seleccionado)
     {
         if (seleccionado) aniosSeleccionados.Add(anio);
         else aniosSeleccionados.Remove(anio);
+        await AplicarFiltros();
     }
 
-    private void ToggleMes(int mes, bool seleccionado)
+    private async Task ToggleMes(int mes, bool seleccionado)
     {
         if (seleccionado) mesesSeleccionados.Add(mes);
         else mesesSeleccionados.Remove(mes);
+        await AplicarFiltros();
     }
 
-    private void SeleccionarTodosAnios() => aniosSeleccionados = aniosDisponibles.ToHashSet();
-    private void LimpiarAnios() => aniosSeleccionados.Clear();
-    private void SeleccionarTodosMeses() => mesesSeleccionados = Enumerable.Range(1, 12).ToHashSet();
-    private void LimpiarMeses() => mesesSeleccionados.Clear();
+    private async Task SeleccionarTodosAnios() { aniosSeleccionados = aniosDisponibles!.ToHashSet(); await AplicarFiltros(); }
+    private async Task LimpiarAnios() { aniosSeleccionados.Clear(); await AplicarFiltros(); }
+    private async Task SeleccionarTodosMeses() { mesesSeleccionados = Enumerable.Range(1, 12).ToHashSet(); await AplicarFiltros(); }
+    private async Task LimpiarMeses() { mesesSeleccionados.Clear(); await AplicarFiltros(); }
 
-    private void OnFechaDesdeChanged(ChangeEventArgs e)
+    private async Task OnFechaDesdeChanged(ChangeEventArgs e)
     {
         if (DateTime.TryParse(e.Value?.ToString(), out var fecha))
             fechaDesde = fecha;
         else
             fechaDesde = null;
+        await AplicarFiltros();
     }
 
-    private void OnFechaHastaChanged(ChangeEventArgs e)
+    private async Task OnFechaHastaChanged(ChangeEventArgs e)
     {
         if (DateTime.TryParse(e.Value?.ToString(), out var fecha))
             fechaHasta = fecha;
         else
             fechaHasta = null;
+        await AplicarFiltros();
     }
 
-    private void LimpiarRango()
+    private async Task LimpiarRango()
     {
         fechaDesde = null;
         fechaHasta = null;
+        await AplicarFiltros();
     }
 
-    private void SetModoFiltro(ModoFiltro modo)
+    private async Task SetModoFiltro(ModoFiltro modo)
     {
         modoFiltro = modo;
         dropdownAniosAbierto = false;
         dropdownMesesAbierto = false;
+        await AplicarFiltros();
     }
 
-    private void AplicarFiltros()
+    private async Task AplicarFiltros()
     {
-        dropdownAniosAbierto = false;
-        dropdownMesesAbierto = false;
+        var datosFiltrados = AplicarFiltrosDatos();
+        CalcularKpis(datosFiltrados);
+        StateHasChanged();
+        await RenderizarGauge();
+    }
+
+    private string GetGaugeColor(double pct)
+    {
+        if (pct <= 50)
+        {
+            double t = pct / 50;
+            return InterpolateColor("#D64550", "#E68F37", t);
+        }
+        else
+        {
+            double t = (pct - 50) / 50;
+            return InterpolateColor("#E68F37", "#39B546", t);
+        }
+    }
+
+    private string InterpolateColor(string hex1, string hex2, double t)
+    {
+        (int r1, int g1, int b1) = HexToRgb(hex1);
+        (int r2, int g2, int b2) = HexToRgb(hex2);
+        int r = (int)(r1 + (r2 - r1) * t);
+        int g = (int)(g1 + (g2 - g1) * t);
+        int b = (int)(b1 + (b2 - b1) * t);
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+
+    private (int r, int g, int b) HexToRgb(string hex)
+    {
+        hex = hex.Replace("#", "");
+        return (
+            Convert.ToInt32(hex.Substring(0, 2), 16),
+            Convert.ToInt32(hex.Substring(2, 2), 16),
+            Convert.ToInt32(hex.Substring(4, 2), 16)
+        );
+    }
+
+    private async Task RenderizarGauge()
+    {
+        if (_disposed) return;
+
+        string color = GetGaugeColor(mediaOcupacion);
+
+        var options = new
+        {
+            series = new[]
+            {
+                new
+                {
+                    type = "gauge",
+                    startAngle = 210,
+                    endAngle = -30,
+                    min = 0,
+                    max = 100,
+                    radius = "88%",
+                    center = new[] { "50%", "58%" },
+                    progress = new
+                    {
+                        show = true,
+                        width = 18,
+                        itemStyle = new { color = color }
+                    },
+                    axisLine = new
+                    {
+                        lineStyle = new
+                        {
+                            width = 18,
+                            color = new object[] { new object[] { 1, "#babcbf" } }
+                        }
+                    },
+                    pointer   = new { show = false },
+                    axisTick  = new { show = false },
+                    splitLine = new { show = false },
+                    axisLabel = new { show = false },
+                    detail = new
+                    {
+                        valueAnimation = true,
+                        formatter      = "{value}%",
+                        color          = color,
+                        fontSize       = 28,
+                        fontWeight     = "bold",
+                        offsetCenter   = new[] { "0%", "10%" }
+                    },
+                    title = new
+                    {
+                        show         = true,
+                        offsetCenter = new[] { "0%", "40%" },
+                        fontSize     = 13,
+                        color        = "000000",
+                        fontWeight   = "bold"
+                    },
+                    data = new[] { new { value = mediaOcupacion } }
+                }
+            }
+        };
+
+        try
+        {
+            await JS.InvokeVoidAsync("renderEChart", "gaugeOcupacion", options);
+        }
+        catch (JSDisconnectedException) { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error gauge: {ex.Message}");
+        }
     }
 }
